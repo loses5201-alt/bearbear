@@ -1,26 +1,9 @@
 # .github/workflows/fetch-tdx.yml
-# ─────────────────────────────────────────────────────────────
-# BearBear 全台活動資料自動更新工作流
-#
-# 執行時機：
-#   - 每天台灣時間凌晨 03:00（UTC 19:00）自動執行
-#   - 可在 GitHub Actions 頁面手動觸發（workflow_dispatch）
-#
-# 必要設定（GitHub Settings → Secrets and variables → Actions）：
-#   TDX_CLIENT_ID      — TDX 平台的 Client ID
-#   TDX_CLIENT_SECRET  — TDX 平台的 Client Secret
-#
-# TDX 申請免費帳號：https://tdx.transportdata.gov.tw/register
-# ─────────────────────────────────────────────────────────────
-
 name: 每日更新 TDX 全台活動資料
 
 on:
-  # 台灣時間凌晨 03:00 = UTC 19:00（前一天）
   schedule:
     - cron: '0 19 * * *'
-
-  # 允許在 Actions 頁面手動觸發（方便測試）
   workflow_dispatch:
     inputs:
       debug:
@@ -32,31 +15,24 @@ jobs:
   fetch-and-commit:
     name: 抓取 TDX 資料並 commit
     runs-on: ubuntu-latest
-    timeout-minutes: 15      # 超過 15 分鐘強制終止（防止意外扣點）
-
+    timeout-minutes: 15
     permissions:
-      contents: write         # 允許 git commit & push
+      contents: write
 
     steps:
-      # ── Step 1：Checkout ──────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # 用 GITHUB_TOKEN 讓後續 commit 有寫入權限
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # ── Step 2：設定 Node.js ──────────────────────────────
       - name: Set up Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          # 無 package.json 的純腳本，不需要 cache
 
-      # ── Step 3：確認 data/ 目錄存在 ──────────────────────
       - name: Ensure data directory exists
         run: mkdir -p data
 
-      # ── Step 4：執行 TDX 抓取腳本 ────────────────────────
       - name: Fetch TDX events data
         env:
           TDX_CLIENT_ID:     ${{ secrets.TDX_CLIENT_ID }}
@@ -77,18 +53,18 @@ jobs:
             exit 1
           fi
 
-      # ── Step 4b：健康度檢查（失敗則阻止 commit）──────────
       - name: Health check — validate events.json
         run: node scripts/health_check.js
 
-      # ── Step 4c：LINE Notify 成功通知 ───────────────────
       - name: Send LINE Notify report
-        if: success()
+        if: ${{ secrets.LINE_NOTIFY_TOKEN != '' }}
         env:
           LINE_NOTIFY_TOKEN: ${{ secrets.LINE_NOTIFY_TOKEN }}
         run: node scripts/line_notify.js
 
-      # ── Step 5：自動 Commit & Push ────────────────────────
+      - name: Set commit time env
+        run: echo "COMMIT_TIME=$(TZ='Asia/Taipei' date '+%Y-%m-%d %H:%M')" >> $GITHUB_ENV
+
       - name: Commit and push updated data
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
@@ -99,20 +75,10 @@ jobs:
             資料來源：TDX 交通部觀光 API
           file_pattern: 'data/events.json'
           commit_author: 'github-actions[bot] <github-actions[bot]@users.noreply.github.com>'
-          # 若資料沒有變動（API 回同樣內容），跳過 commit
           skip_dirty_check: false
 
-      # ── Step 6：設定環境變數（供 commit message 使用）────
-      - name: Set commit time env
-        run: echo "COMMIT_TIME=$(TZ='Asia/Taipei' date '+%Y-%m-%d %H:%M')" >> $GITHUB_ENV
-
-      # ── Step 7：失敗通知（可選）──────────────────────────
-      # 若要 Email 通知失敗，在 GitHub 個人設定中開啟
-      # Settings → Notifications → GitHub Actions → 勾選 Failed workflows only
-
-      # ── Step 8：失敗時 LINE 警報 ────────────────────────
       - name: Send LINE Notify — failure alert
-        if: failure()
+        if: failure() && ${{ secrets.LINE_NOTIFY_TOKEN != '' }}
         env:
           LINE_NOTIFY_TOKEN: ${{ secrets.LINE_NOTIFY_TOKEN }}
         run: |
