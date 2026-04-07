@@ -28,7 +28,7 @@ const CONFIG = {
   CLIENT_ID     : process.env.TDX_CLIENT_ID     || '',
   CLIENT_SECRET : process.env.TDX_CLIENT_SECRET || '',
   TOKEN_URL     : 'https://tdx.transportdata.tw/auth/realms/TDXConnect/protocol/openid-connect/token',
-  BASE_URL      : 'https://tdx.transportdata.tw/api/basic',
+  BASE_URL      : 'https://tdx.transportdata.tw/api/basic/v2',
   /* 每批最多抓幾筆（TDX 單次上限 1000） */
   BATCH_SIZE    : 1000,
   /* 輸出路徑 */
