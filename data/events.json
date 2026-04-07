@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-04-07T10:14:25.699Z",
-  "count": 455,
+  "updated_at": "2026-04-07T21:30:49.248Z",
+  "count": 458,
   "source": "TDX 交通部觀光 API",
   "events": [
     {
@@ -7567,6 +7567,88 @@
       "website": ""
     },
     {
+      "id": "C2_376430000A_006665",
+      "city": "桃園",
+      "filter": "music market free",
+      "lat": 24.845720291137695,
+      "lng": 121.23422241210938,
+      "bar": "#B2EBF2",
+      "pin": "#B2EBF2",
+      "pin_emoji": "★",
+      "tags": [
+        {
+          "t": "免費",
+          "bg": "#B2EBF2",
+          "c": "#085041"
+        },
+        {
+          "t": "音樂",
+          "bg": "#B1D8F3",
+          "c": "#0C447C"
+        },
+        {
+          "t": "市集",
+          "bg": "#FFF1A8",
+          "c": "#633806"
+        }
+      ],
+      "name": "2026桃園桐花祭 桐花童話",
+      "time": "2026-04-18 – 2026-05-09",
+      "dist": "—",
+      "is_free": true,
+      "is_indoor": false,
+      "cost_est": "NT$0（免費入場）",
+      "hero_color": "#B2EB82",
+      "dtag": "桃園 · music",
+      "dtitle": "2026桃園桐花祭 桐花童話",
+      "grid": [
+        {
+          "icon": "🕗",
+          "lbl": "時間",
+          "val": "2026-04-18 – 2026-05-09"
+        },
+        {
+          "icon": "📍",
+          "lbl": "地點",
+          "val": "桃園市325龍潭區中正路三林段500號"
+        },
+        {
+          "icon": "🎟",
+          "lbl": "票價",
+          "val": "免費入場"
+        },
+        {
+          "icon": "🔗",
+          "lbl": "資訊",
+          "val": "暫無官網"
+        }
+      ],
+      "pain": [
+        {
+          "icon": "📋",
+          "bg": "#E6F1FB",
+          "txt": "<strong>主辦單位</strong>：桃園市政府"
+        },
+        {
+          "icon": "📍",
+          "bg": "#FAEEDA",
+          "txt": "<strong>地址</strong>：桃園市325龍潭區中正路三林段500號"
+        },
+        {
+          "icon": "🎟",
+          "bg": "#E1F5EE",
+          "txt": "<strong>費用</strong>：完全免費"
+        },
+        {
+          "icon": "🌐",
+          "bg": "#FBEAF0",
+          "txt": "<strong>官網</strong>：暫無"
+        }
+      ],
+      "food": [],
+      "website": ""
+    },
+    {
       "id": "C2_376430000A_006666",
       "city": "桃園",
       "filter": "art free",
@@ -11740,6 +11822,78 @@
           "icon": "📍",
           "bg": "#FAEEDA",
           "txt": "<strong>地址</strong>：臺中市404北區館前路1號"
+        },
+        {
+          "icon": "🎟",
+          "bg": "#E1F5EE",
+          "txt": "<strong>費用</strong>：完全免費"
+        },
+        {
+          "icon": "🌐",
+          "bg": "#FBEAF0",
+          "txt": "<strong>官網</strong>：暫無"
+        }
+      ],
+      "food": [],
+      "website": ""
+    },
+    {
+      "id": "C2_387000000A_010156",
+      "city": "台中",
+      "filter": "art free",
+      "lat": 24.175880432128906,
+      "lng": 120.69082641601562,
+      "bar": "#FFF1A8",
+      "pin": "#FFF1A8",
+      "pin_emoji": "★",
+      "tags": [
+        {
+          "t": "免費",
+          "bg": "#B2EBF2",
+          "c": "#085041"
+        }
+      ],
+      "name": "2026大坑蝶螢嘉年華",
+      "time": "2026-04-01 – 2026-06-30",
+      "dist": "—",
+      "is_free": true,
+      "is_indoor": false,
+      "cost_est": "NT$0（免費入場）",
+      "hero_color": "#8FF1A8",
+      "dtag": "台中 · art",
+      "dtitle": "2026大坑蝶螢嘉年華",
+      "grid": [
+        {
+          "icon": "🕗",
+          "lbl": "時間",
+          "val": "2026-04-01 – 2026-06-30"
+        },
+        {
+          "icon": "📍",
+          "lbl": "地點",
+          "val": "臺中市406北屯區大政段357地號"
+        },
+        {
+          "icon": "🎟",
+          "lbl": "票價",
+          "val": "免費入場"
+        },
+        {
+          "icon": "🔗",
+          "lbl": "資訊",
+          "val": "暫無官網"
+        }
+      ],
+      "pain": [
+        {
+          "icon": "📋",
+          "bg": "#E6F1FB",
+          "txt": "<strong>主辦單位</strong>：臺中市政府"
+        },
+        {
+          "icon": "📍",
+          "bg": "#FAEEDA",
+          "txt": "<strong>地址</strong>：臺中市406北屯區大政段357地號"
         },
         {
           "icon": "🎟",
@@ -17100,7 +17254,7 @@
     {
       "id": "C2_376540000A_006266",
       "city": "台東",
-      "filter": "music free",
+      "filter": "music market free",
       "lat": 22.83077049255371,
       "lng": 121.18611907958984,
       "bar": "#97C459",
@@ -17116,6 +17270,11 @@
           "t": "音樂",
           "bg": "#B1D8F3",
           "c": "#0C447C"
+        },
+        {
+          "t": "市集",
+          "bg": "#FFF1A8",
+          "c": "#633806"
         }
       ],
       "name": "2026東浪嘉年華",
@@ -33433,6 +33592,78 @@
           "icon": "📍",
           "bg": "#FAEEDA",
           "txt": "<strong>地址</strong>：高雄市844六龜區新威森林公園"
+        },
+        {
+          "icon": "🎟",
+          "bg": "#E1F5EE",
+          "txt": "<strong>費用</strong>：完全免費"
+        },
+        {
+          "icon": "🌐",
+          "bg": "#FBEAF0",
+          "txt": "<strong>官網</strong>：暫無"
+        }
+      ],
+      "food": [],
+      "website": ""
+    },
+    {
+      "id": "C2_397000000A_007526",
+      "city": "高雄",
+      "filter": "art free",
+      "lat": 22.832569122314453,
+      "lng": 120.53038024902344,
+      "bar": "#97C459",
+      "pin": "#97C459",
+      "pin_emoji": "★",
+      "tags": [
+        {
+          "t": "免費",
+          "bg": "#B2EBF2",
+          "c": "#085041"
+        }
+      ],
+      "name": "2026星海尋蹤｜英仙座流星雨觀測活動",
+      "time": "2026-08-12",
+      "dist": "—",
+      "is_free": true,
+      "is_indoor": false,
+      "cost_est": "NT$0（免費入場）",
+      "hero_color": "#97C459",
+      "dtag": "高雄 · art",
+      "dtitle": "2026星海尋蹤｜英仙座流星雨觀測活動",
+      "grid": [
+        {
+          "icon": "🕗",
+          "lbl": "時間",
+          "val": "2026-08-12"
+        },
+        {
+          "icon": "📍",
+          "lbl": "地點",
+          "val": "高雄市843美濃區高雄同學農場"
+        },
+        {
+          "icon": "🎟",
+          "lbl": "票價",
+          "val": "免費入場"
+        },
+        {
+          "icon": "🔗",
+          "lbl": "資訊",
+          "val": "暫無官網"
+        }
+      ],
+      "pain": [
+        {
+          "icon": "📋",
+          "bg": "#E6F1FB",
+          "txt": "<strong>主辦單位</strong>：大角天文小鎮"
+        },
+        {
+          "icon": "📍",
+          "bg": "#FAEEDA",
+          "txt": "<strong>地址</strong>：高雄市843美濃區高雄同學農場"
         },
         {
           "icon": "🎟",
