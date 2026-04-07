@@ -1,0 +1,41 @@
+{
+  "name": "BearBear 週末去哪玩",
+  "short_name": "BearBear",
+  "description": "台灣在地活動整合 APP，跟 BearBear 一起探索週末好去處！",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFF8F5",
+  "theme_color": "#FFB7B2",
+  "lang": "zh-TW",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%23FFB7B2'/%3E%3Cellipse cx='64' cy='72' rx='32' ry='28' fill='%233D2B1F'/%3E%3Cellipse cx='128' cy='72' rx='32' ry='28' fill='%233D2B1F'/%3E%3Cellipse cx='96' cy='130' rx='60' ry='54' fill='%233D2B1F'/%3E%3Cellipse cx='96' cy='132' rx='52' ry='46' fill='%234A3428'/%3E%3Cellipse cx='96' cy='100' rx='64' ry='58' fill='%233D2B1F'/%3E%3Cellipse cx='96' cy='102' rx='56' ry='50' fill='%234A3428'/%3E%3Cellipse cx='74' cy='96' rx='14' ry='14' fill='%231A1010'/%3E%3Cellipse cx='118' cy='96' rx='14' ry='14' fill='%231A1010'/%3E%3Cellipse cx='79' cy='91' rx='5' ry='5' fill='white'/%3E%3Cellipse cx='123' cy='91' rx='5' ry='5' fill='white'/%3E%3Cellipse cx='96' cy='112' rx='10' ry='7' fill='%232D1810'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23FFB7B2'/%3E%3Cellipse cx='170' cy='192' rx='85' ry='74' fill='%233D2B1F'/%3E%3Cellipse cx='342' cy='192' rx='85' ry='74' fill='%233D2B1F'/%3E%3Cellipse cx='256' cy='346' rx='160' ry='144' fill='%233D2B1F'/%3E%3Cellipse cx='256' cy='350' rx='140' ry='124' fill='%234A3428'/%3E%3Cellipse cx='256' cy='266' rx='170' ry='155' fill='%233D2B1F'/%3E%3Cellipse cx='256' cy='270' rx='150' ry='134' fill='%234A3428'/%3E%3Cellipse cx='196' cy='256' rx='38' ry='38' fill='%231A1010'/%3E%3Cellipse cx='316' cy='256' rx='38' ry='38' fill='%231A1010'/%3E%3Cellipse cx='210' cy='242' rx='14' ry='14' fill='white'/%3E%3Cellipse cx='330' cy='242' rx='14' ry='14' fill='white'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["lifestyle", "travel", "entertainment"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "找附近活動",
+      "short_name": "找附近",
+      "url": "./index.html#radar",
+      "description": "立即查看 5km 內今天的活動"
+    },
+    {
+      "name": "抽 BearBear 行程",
+      "short_name": "抽行程",
+      "url": "./index.html#gacha",
+      "description": "讓 BearBear 幫你抽今天的行程"
+    }
+  ]
+}

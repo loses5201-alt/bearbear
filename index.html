@@ -1,0 +1,2280 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#FFB7B2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="BearBear">
+<meta name="description" content="台灣在地活動整合 APP，跟 BearBear 一起探索週末好去處！">
+<title>BearBear 週末去哪玩</title>
+<link rel="manifest" href="manifest.json">
+<!-- Leaflet.js 地圖（免費開源，無需 API Key） -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- html2canvas：IG 分享圖截圖用 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<!-- ============================================================
+     BearBear 週末去哪玩 — 完整 PWA SPA
+     架構：純前端 HTML/CSS/Vanilla JS
+     頁面：① 找附近（LBS 雷達地圖 + 活動列表 + 詳情頁）
+           ② 抽行程（BearBear 心理測驗 → Gacha 盲盒 → 結果）
+     ============================================================ -->
+
+<style>
+/* ════════════════════════════════════════
+   CSS 變數與基礎重置
+════════════════════════════════════════ */
+:root {
+  --pk:    #FFB7B2;  /* 蜜桃粉：主色 */
+  --pk-d:  #E8948F;  /* 深蜜桃粉：hover */
+  --pk-l:  #FFF0EE;  /* 淡蜜桃粉：背景用 */
+  --bl:    #B1D8F3;  /* 嬰兒藍 */
+  --bl-d:  #7BB8E8;
+  --mn:    #B2EBF2;  /* 薄荷綠 */
+  --mn-d:  #6CC8D4;
+  --yw:    #FFF1A8;  /* 亮麗黃 */
+  --yw-d:  #E8D060;
+  --bg:    #FFF8F5;  /* 米白背景 */
+  --card:  #FFFFFF;  /* 卡片白 */
+  --txt:   #0D0704;  /* 主文字：近黑，WCAG AAA 21:1 */
+  --sub:   #4A2C1A;  /* 次要文字：深棕，WCAG AA 7:1 */
+  --bdr:   #F4C8C0;  /* 邊框色 */
+  --shd:   rgba(255,183,178,.18); /* 陰影 */
+  /* 字型 */
+  --font:  'Helvetica Neue','PingFang TC','Microsoft JhengHei',sans-serif;
+  /* 安全區域 */
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; -webkit-text-size-adjust: 100%; }
+body {
+  height: 100%;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--txt);
+  overflow: hidden;           /* 由各 view 自行捲動 */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ════════════════════════════════════════
+   APP 外框佈局
+════════════════════════════════════════ */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--card);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── 狀態列模擬（真機上隱藏，瀏覽器測試時顯示） ── */
+.status-bar {
+  height: calc(22px + var(--safe-top));
+  padding-top: var(--safe-top);
+  background: var(--pk);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 16px;
+  padding-right: 16px;
+  flex-shrink: 0;
+}
+.sb-pill { width: 30px; height: 3px; background: rgba(255,255,255,.65); border-radius: 2px; }
+.sb-icons { display: flex; gap: 4px; }
+.sb-icon { width: 11px; height: 6px; background: rgba(255,255,255,.65); border-radius: 1px; }
+
+/* ── 頂部導覽列 ── */
+.top-nav {
+  background: var(--card);
+  border-bottom: 1.5px solid var(--bdr);
+  display: flex;
+  padding: 0 6px;
+  flex-shrink: 0;
+  gap: 0;
+}
+.nav-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 4px 8px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: var(--font);
+  transition: all .2s;
+  position: relative;
+  gap: 3px;
+}
+.nav-tab-icon { font-size: 20px; line-height: 1; }
+.nav-tab-lbl {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--sub);
+  transition: color .2s;
+}
+.nav-tab.active .nav-tab-lbl { color: var(--pk-d); }
+.nav-tab::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 20%; right: 20%;
+  height: 2.5px;
+  border-radius: 2px 2px 0 0;
+  background: transparent;
+  transition: background .2s;
+}
+.nav-tab.active::after { background: var(--pk); }
+
+/* ── 主要內容區（可捲動） ── */
+.main-content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── 每個 View ── */
+.view {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(30px);
+  transition: opacity .3s, transform .3s;
+  -webkit-overflow-scrolling: touch;
+}
+.view.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+/* ── 底部安全區 ── */
+.safe-bottom { height: var(--safe-bottom); }
+
+/* ════════════════════════════════════════
+   BearBear SVG 共用動畫
+════════════════════════════════════════ */
+@keyframes bb-float  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+@keyframes bb-blink  { 0%,88%,100%{transform:scaleY(1)} 94%{transform:scaleY(0.05)} }
+@keyframes bb-shake  { 0%,100%{transform:rotate(0)} 20%{transform:rotate(-5deg)} 40%{transform:rotate(5deg)} 60%{transform:rotate(-4deg)} 80%{transform:rotate(4deg)} }
+@keyframes bubble-in { 0%{transform:scale(.7);opacity:0} 70%{transform:scale(1.04)} 100%{transform:scale(1);opacity:1} }
+@keyframes choice-up { 0%{transform:translateY(20px);opacity:0} 100%{transform:translateY(0);opacity:1} }
+@keyframes card-rise { 0%{transform:translateY(60px) scale(.94);opacity:0} 65%{transform:translateY(-5px) scale(1.01)} 100%{transform:translateY(0) scale(1);opacity:1} }
+@keyframes badge-pop { 0%{transform:scale(0) rotate(-20deg);opacity:0} 70%{transform:scale(1.12) rotate(4deg)} 100%{transform:scale(1) rotate(0);opacity:1} }
+@keyframes confetti-f{ 0%{transform:translateY(0) rotate(0deg);opacity:1} 100%{transform:translateY(160px) rotate(480deg);opacity:0} }
+@keyframes shine     { 0%{left:-80%} 100%{left:160%} }
+@keyframes sparkle   { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.55)} }
+@keyframes pin-pulse { 0%{transform:scale(1);opacity:.5} 100%{transform:scale(2.4);opacity:0} }
+@keyframes ev-in     { 0%{transform:translateY(14px);opacity:0} 100%{transform:translateY(0);opacity:1} }
+@keyframes detail-up { 0%{transform:translateY(100%)} 100%{transform:translateY(0)} }
+@keyframes cd-tick   { 0%{transform:scaleY(1.2)} 100%{transform:scaleY(1)} }
+
+.bb-body  { animation: bb-float 2.6s ease-in-out infinite; transform-origin: center bottom; }
+.bb-eye-l { animation: bb-blink 3.6s ease-in-out infinite; transform-origin: 0 0; }
+.bb-eye-r { animation: bb-blink 3.6s ease-in-out .22s infinite; transform-origin: 0 0; }
+.sp       { display:inline-block; }
+.sp-1     { animation: sparkle 1.2s 0s    ease-in-out infinite; }
+.sp-2     { animation: sparkle 1.2s .4s   ease-in-out infinite; }
+.sp-3     { animation: sparkle 1.2s .8s   ease-in-out infinite; }
+
+/* ════════════════════════════════════════
+   ① 找附近 (LBS Radar) 相關樣式
+════════════════════════════════════════ */
+/* 頂部搜尋 + 篩選 */
+.radar-topbar {
+  background: var(--card);
+  border-bottom: 1px solid var(--bdr);
+  padding: 10px 14px 8px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.radar-search-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.radar-search {
+  flex: 1;
+  height: 36px;
+  background: var(--bg);
+  border: 1.5px solid var(--bdr);
+  border-radius: 20px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-family: var(--font);
+  color: var(--txt);
+  outline: none;
+}
+.radar-search:focus { border-color: var(--pk); }
+.radar-loc-btn {
+  height: 36px;
+  padding: 0 14px;
+  background: var(--pk);
+  border: none;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  font-family: var(--font);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* 水平滑動篩選標籤 */
+.filter-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.filter-scroll::-webkit-scrollbar { display: none; }
+.ftag {
+  height: 34px;            /* ≥34px 利於單手觸控 */
+  padding: 0 14px;
+  background: var(--card);
+  border: 1.5px solid var(--bdr);
+  border-radius: 17px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--sub);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  transition: all .15s;
+  user-select: none;
+  font-family: var(--font);
+}
+.ftag:active { transform: scale(.95); }
+.ftag.on { background: var(--pk); border-color: var(--pk-d); color: white; }
+.ftag.free.on  { background: var(--mn); border-color: var(--mn-d); color: #085041; }
+.ftag.music.on { background: var(--bl); border-color: var(--bl-d); color: #0C447C; }
+.ftag.food.on  { background: var(--yw); border-color: var(--yw-d); color: #633806; }
+
+/* 地圖區塊 */
+.map-wrap {
+  height: 220px;
+  background: #E8EFE4;
+  position: relative;
+  overflow: hidden;
+  cursor: crosshair;
+}
+/* 地圖格線道路（模擬底圖） */
+.map-road { position: absolute; background: rgba(255,255,255,.88); }
+.map-road.h { left: 0; right: 0; height: 3px; }
+.map-road.v { top: 0; bottom: 0; width: 3px; }
+.map-grid { position: absolute; background: rgba(255,255,255,.4); }
+.map-grid.h { left: 0; right: 0; height: .5px; }
+.map-grid.v { top: 0; bottom: 0; width: .5px; }
+
+/* 用戶當前位置藍點 */
+.user-dot {
+  position: absolute;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #378ADD;
+  border: 3px solid white;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+.user-ring {
+  position: absolute;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  border: 1px solid rgba(55,138,221,.3);
+  background: rgba(55,138,221,.06);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* 地圖大頭針 */
+.map-pin {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform .2s;
+  z-index: 4;
+}
+.map-pin:hover, .map-pin:active { transform: scale(1.18) translateY(-2px); }
+.pin-body {
+  width: 32px; height: 32px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2.5px solid white;
+  position: relative;
+}
+.pin-icon { transform: rotate(45deg); font-size: 14px; }
+.pin-pulse {
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 2px solid;
+  animation: pin-pulse 2s ease-out infinite;
+}
+.pin-tail { width: 4px; height: 7px; border-radius: 0 0 3px 3px; margin-top: -2px; }
+.pin-lbl {
+  font-size: 10px;
+  font-weight: 500;
+  background: white;
+  border: 1px solid var(--bdr);
+  border-radius: 8px;
+  padding: 2px 6px;
+  margin-top: 2px;
+  color: var(--txt);
+  white-space: nowrap;
+}
+
+/* 聚合標記（多個活動在同一區域） */
+.cluster-pin {
+  position: absolute;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--pk);
+  border: 3px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  z-index: 4;
+  transition: transform .2s;
+}
+.cluster-pin:hover { transform: scale(1.1); }
+
+/* 地圖提示文字 */
+.map-hint {
+  position: absolute;
+  bottom: 8px; right: 10px;
+  background: rgba(255,255,255,.88);
+  border-radius: 8px;
+  padding: 4px 9px;
+  font-size: 10px;
+  color: var(--sub);
+  pointer-events: none;
+}
+
+/* 活動列表 */
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 6px;
+  background: var(--card);
+  border-bottom: .5px solid var(--bdr);
+}
+.list-header-title { font-size: 14px; font-weight: 800; color: var(--txt); }
+.list-count {
+  font-size: 11px;
+  color: var(--sub);
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 2px 9px;
+}
+.sort-btn {
+  font-size: 11px;
+  color: var(--sub);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+}
+
+/* 活動列表卡片 */
+.ev-list { padding: 8px 12px 20px; display: flex; flex-direction: column; gap: 8px; }
+.ev-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 11px 12px;
+  background: var(--bg);
+  border-radius: 16px;
+  border: 2px solid #8B5E40;      /* 深棕邊框，戶外強光下清晰可辨 */
+  content-visibility: auto;        /* 跳過螢幕外卡片的 layout/paint */
+  contain-intrinsic-size: 0 90px;  /* 預估高度防 scrollbar 跳動 */
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s, transform .1s;
+  animation: ev-in .3s ease both;
+  box-shadow: 0 1px 4px rgba(90,40,10,.10);
+}
+.ev-row:hover  { border-color: #5C2E0A; box-shadow: 0 3px 12px rgba(90,40,10,.18); }
+.ev-row:active { transform: scale(.98); }
+.ev-bar  { width: 4px; border-radius: 3px; flex-shrink: 0; align-self: stretch; min-height: 50px; }
+.ev-info { flex: 1; min-width: 0; }
+.ev-name { font-size: 15px; font-weight: 800; color: var(--txt); margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.45; }
+.ev-city { font-size: 11px; font-weight: 600; color: var(--pk-d); margin-bottom: 2px; }
+.ev-meta { font-size: 13px; color: var(--sub); margin-bottom: 5px; font-weight: 600; line-height: 1.5; }
+.ev-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.ev-tag  { font-size: 10px; border-radius: 10px; padding: 2px 8px; font-weight: 600; }
+.ev-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+.ev-dist { font-size: 11px; color: var(--sub); font-weight: 600; }
+.ev-arrow { font-size: 16px; color: var(--pk-d); font-weight: 700; }
+/* CP 值標籤 */
+.cp-badge { font-size: 10px; font-weight: 700; background: #1A7A3C; color: #fff; border-radius: 8px; padding: 2px 7px; white-space: nowrap; }
+
+/* ── 活動詳情抽屜 ── */
+.detail-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.25);
+  z-index: 30;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s;
+}
+.detail-overlay.open { opacity: 1; pointer-events: auto; }
+.detail-drawer {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  max-height: 88%;
+  background: var(--card);
+  border-radius: 24px 24px 0 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  transform: translateY(100%);
+  transition: transform .35s cubic-bezier(.34,1.2,.64,1);
+  z-index: 31;
+}
+.detail-overlay.open .detail-drawer { transform: translateY(0); }
+.drawer-handle { width: 36px; height: 4px; background: var(--bdr); border-radius: 2px; margin: 10px auto 0; }
+.detail-hero {
+  height: 140px;
+  display: flex;
+  align-items: flex-end;
+  padding: 14px 16px;
+  position: relative;
+  overflow: hidden;
+}
+.detail-hero-shine {
+  position: absolute; top: 0; left: -80%; width: 50%; height: 100%;
+  background: rgba(255,255,255,.12); transform: skewX(-20deg);
+  animation: shine 3.5s ease-in-out infinite;
+}
+.detail-back {
+  position: absolute;
+  top: 12px; left: 12px;
+  background: rgba(255,255,255,.88);
+  border: none; border-radius: 20px;
+  padding: 5px 13px;
+  font-size: 12px; cursor: pointer;
+  color: var(--txt); font-family: var(--font);
+}
+.detail-tag-badge {
+  display: inline-block;
+  background: rgba(255,255,255,.25);
+  color: white;
+  font-size: 10px; border-radius: 10px; padding: 2px 9px; margin-bottom: 5px;
+}
+.detail-title { font-size: 19px; font-weight: 500; color: white; line-height: 1.25; }
+.detail-body  { padding: 14px 16px 24px; display: flex; flex-direction: column; gap: 13px; }
+
+/* 資訊格線 */
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.info-cell { background: var(--bg); border-radius: 14px; padding: 10px 12px; }
+.info-icon { font-size: 16px; margin-bottom: 3px; }
+.info-lbl  { font-size: 10px; color: var(--sub); margin-bottom: 2px; }
+.info-val  { font-size: 14px; font-weight: 700; color: var(--txt); line-height: 1.5; }
+
+/* 痛點資訊欄 */
+.pain-section { background: var(--bg); border-radius: 16px; padding: 12px 14px; }
+.pain-title   { font-size: 12px; font-weight: 500; color: var(--txt); margin-bottom: 8px; }
+.pain-row     { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 7px; }
+.pain-row:last-child { margin-bottom: 0; }
+.pain-icon-box { width: 26px; height: 26px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.pain-text { font-size: 12px; color: var(--sub); line-height: 1.55; }
+.pain-text strong { color: var(--txt); font-weight: 500; }
+
+/* 附近美食橫向捲動 */
+.food-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.food-scroll::-webkit-scrollbar { display: none; }
+.food-chip {
+  background: var(--bg);
+  border: 1.5px solid var(--bdr);
+  border-radius: 14px;
+  padding: 9px 12px;
+  flex-shrink: 0;
+  min-width: 105px;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+.food-chip:hover { border-color: var(--pk); }
+.food-chip-name { font-size: 12px; font-weight: 500; color: var(--txt); margin-bottom: 2px; }
+.food-chip-meta { font-size: 10px; color: var(--sub); }
+
+/* CTA 按鈕列 */
+.cta-row { display: flex; gap: 8px; }
+.cta-main {
+  flex: 1;
+  height: 48px;
+  background: var(--pk);
+  border: none;
+  border-radius: 24px;
+  font-size: 14px; font-weight: 500;
+  color: white;
+  cursor: pointer;
+  font-family: var(--font);
+  position: relative; overflow: hidden;
+  transition: background .2s, transform .1s;
+}
+.cta-main:hover   { background: var(--pk-d); }
+.cta-main:active  { transform: scale(.97); }
+.cta-main-shine {
+  position: absolute; top: 0; left: -80%; width: 55%; height: 100%;
+  background: rgba(255,255,255,.22); transform: skewX(-20deg);
+  transition: left .4s;
+}
+.cta-main:hover .cta-main-shine { left: 160%; }
+.cta-save {
+  width: 48px; height: 48px;
+  background: var(--bg);
+  border: 1.5px solid var(--bdr);
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.cta-save:hover { border-color: var(--pk); }
+.cta-save.saved { background: var(--pk-l); border-color: var(--pk); }
+
+/* ════════════════════════════════════════
+   ② 抽行程 (Gacha) 相關樣式
+════════════════════════════════════════ */
+.gacha-view { background: var(--bg); }
+.gacha-inner {
+  max-width: 380px;
+  margin: 0 auto;
+  padding: 16px 16px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* 步驟指示器 */
+.step-dots { display: flex; gap: 8px; margin-bottom: 20px; margin-top: 4px; }
+.step-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--bdr);
+  transition: all .3s;
+}
+.step-dot.on { background: var(--pk); width: 20px; border-radius: 4px; }
+
+/* BearBear 對話框 */
+.bb-zone { display: flex; align-items: flex-end; gap: 12px; width: 100%; margin-bottom: 16px; }
+.bb-bubble {
+  background: var(--card);
+  border: 2px solid var(--pk);
+  border-radius: 20px 20px 20px 5px;
+  padding: 11px 15px;
+  flex: 1;
+  font-size: 13px; font-weight: 500;
+  color: var(--txt);
+  line-height: 1.55;
+  animation: bubble-in .4s cubic-bezier(.34,1.56,.64,1) both;
+  animation-delay: .15s;
+  opacity: 0;
+  position: relative;
+}
+.bb-bubble::before {
+  content: '';
+  position: absolute;
+  left: -10px; bottom: 12px;
+  border: 7px solid transparent;
+  border-right-color: var(--pk);
+}
+.bb-bubble::after {
+  content: '';
+  position: absolute;
+  left: -7px; bottom: 13px;
+  border: 5px solid transparent;
+  border-right-color: var(--card);
+}
+.bb-bubble-sub { font-size: 11px; color: var(--sub); font-weight: 400; margin-top: 3px; }
+
+/* 選項按鈕 */
+.choice-btn {
+  width: 100%;
+  border-radius: 22px;
+  padding: 16px 20px;
+  border: 2.5px solid transparent;
+  font-size: 14px; font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  text-align: left;
+  transition: transform .15s, box-shadow .15s;
+  font-family: var(--font);
+  animation: choice-up .4s cubic-bezier(.34,1.56,.64,1) both;
+  opacity: 0;
+}
+.choice-btn:hover  { transform: scale(1.02); box-shadow: 0 4px 16px var(--shd); }
+.choice-btn:active { transform: scale(.97); }
+.choice-btn.mint   { background: var(--mn); border-color: var(--mn-d); color: #085041; animation-delay: .45s; }
+.choice-btn.yello  { background: var(--yw); border-color: var(--yw-d); color: #7A6000; animation-delay: .62s; }
+.choice-icon { font-size: 30px; flex-shrink: 0; }
+.choice-title { font-size: 15px; font-weight: 500; }
+.choice-sub   { font-size: 11px; opacity: .65; margin-top: 2px; }
+
+/* Gacha 盲盒 */
+.gacha-label-top { font-size: 13px; color: var(--sub); text-align: center; line-height: 1.6; margin-bottom: 12px; width: 100%; }
+
+/* 倒數計時 */
+.cd-row { display: flex; gap: 6px; align-items: center; margin-bottom: 16px; }
+.cd-unit { display: flex; flex-direction: column; align-items: center; }
+.cd-num  {
+  font-size: 24px; font-weight: 500;
+  color: var(--txt); min-width: 34px;
+  text-align: center; line-height: 1;
+}
+.cd-num.ticking { animation: cd-tick .12s ease; }
+.cd-lbl { font-size: 9px; color: var(--sub); margin-top: 2px; }
+.cd-sep { font-size: 20px; font-weight: 500; color: var(--bdr); margin-bottom: 8px; }
+
+/* 盲盒容器 */
+.gacha-box {
+  width: 200px; height: 200px;
+  border-radius: 32px;
+  background: var(--pk);
+  border: 3px solid var(--pk-d);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform .2s;
+  margin-bottom: 16px;
+}
+.gacha-box:hover { transform: scale(1.02); }
+.gacha-box-shine {
+  position: absolute; top: 0; left: -80%; width: 55%; height: 100%;
+  background: rgba(255,255,255,.22); transform: skewX(-20deg);
+  animation: shine 2.5s ease-in-out infinite;
+}
+.gacha-box-label {
+  font-size: 12px; font-weight: 500;
+  color: rgba(255,255,255,.85);
+  text-align: center; padding: 0 14px;
+  line-height: 1.5;
+  position: relative; z-index: 1;
+}
+
+/* 刮刮卡遮罩 */
+.scratch-mask {
+  position: absolute; inset: 0;
+  border-radius: 29px;
+  background: repeating-linear-gradient(
+    45deg,
+    #BF973E 0, #BF973E 12px,
+    #D4AF5A 12px, #D4AF5A 24px
+  );
+  z-index: 2;
+  transition: opacity .55s;
+  display: flex; align-items: center; justify-content: center;
+}
+.scratch-mask.gone { opacity: 0; pointer-events: none; }
+.scratch-mask-txt {
+  font-size: 12px; font-weight: 500;
+  color: rgba(255,255,255,.85);
+  text-align: center; line-height: 1.5;
+  pointer-events: none;
+}
+
+/* 主 CTA */
+.gacha-cta {
+  width: 100%;
+  height: 52px;
+  background: var(--pk);
+  border: none; border-radius: 26px;
+  font-size: 15px; font-weight: 500; color: white;
+  cursor: pointer; font-family: var(--font);
+  position: relative; overflow: hidden;
+  transition: background .2s, transform .1s;
+}
+.gacha-cta:hover  { background: var(--pk-d); }
+.gacha-cta:active { transform: scale(.97); }
+.gacha-cta-shine {
+  position: absolute; top: 0; left: -80%; width: 55%; height: 100%;
+  background: rgba(255,255,255,.22); transform: skewX(-20deg);
+  transition: left .4s;
+}
+.gacha-cta:hover .gacha-cta-shine { left: 160%; }
+.gacha-cta:disabled { opacity: .55; cursor: default; }
+
+/* 結果卡片 */
+.result-card {
+  width: 100%;
+  background: var(--card);
+  border-radius: 24px;
+  border: 2px solid var(--bdr);
+  overflow: hidden;
+  animation: card-rise .65s cubic-bezier(.34,1.56,.64,1) both;
+  margin-bottom: 14px;
+}
+.result-header {
+  padding: 16px 18px 14px;
+  position: relative; overflow: hidden;
+}
+.result-header-shine {
+  position: absolute; top: 0; left: -80%; width: 50%; height: 100%;
+  background: rgba(255,255,255,.12); transform: skewX(-20deg);
+  animation: shine 3.5s ease-in-out infinite;
+}
+.result-tag { display:inline-block; background:rgba(255,255,255,.25); color:white; font-size:10px; border-radius:10px; padding:2px 9px; margin-bottom:5px; position:relative;z-index:1; }
+.result-title { font-size: 20px; font-weight: 500; color: white; line-height: 1.25; position:relative;z-index:1; }
+.result-subtitle { font-size: 12px; color: rgba(255,255,255,.78); margin-top: 4px; position:relative;z-index:1; }
+.result-body { padding: 14px 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+
+.stats-row { display: flex; gap: 8px; }
+.stat-chip { flex:1; background:var(--bg); border-radius:14px; padding:9px 10px; text-align:center; }
+.stat-num  { font-size:17px; font-weight:500; color:var(--txt); }
+.stat-lbl  { font-size:10px; color:var(--sub); margin-top:2px; }
+
+.stop-list { display: flex; flex-direction: column; gap: 0; }
+.stop-row  { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; }
+.stop-circle {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--pk); color: white;
+  font-size: 11px; font-weight: 500;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.stop-name { font-size: 13px; font-weight: 500; color: var(--txt); }
+.stop-meta { font-size: 11px; color: var(--sub); margin-top: 1px; }
+.stop-connector { width: 1px; height: 8px; background: var(--bdr); margin: 0 0 -3px 10px; }
+
+.pill-row { display: flex; gap: 5px; flex-wrap: wrap; }
+.pill     { font-size: 11px; border-radius: 20px; padding: 4px 11px; }
+.pill-pk  { background: var(--pk-l); color: #993556; }
+.pill-bl  { background: #E6F1FB;     color: #185FA5; }
+.pill-mn  { background: #E1F5EE;     color: #0F6E56; }
+
+/* 大拇指 BearBear（結果卡片角落） */
+.thumb-bear {
+  position: absolute; bottom: -8px; right: 14px;
+  width: 54px; height: 54px;
+  z-index: 2;
+}
+
+/* 徽章解鎖 */
+.badge-reveal {
+  width: 100%;
+  display: flex; flex-direction: column; align-items: center; gap: 7px;
+  animation: badge-pop .6s cubic-bezier(.34,1.56,.64,1) both;
+  animation-delay: .75s;
+  opacity: 0;
+}
+.badge-lbl { font-size: 12px; font-weight: 500; color: var(--pk-d); }
+
+/* 彩紙容器 */
+.confetti-wrap {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 0; pointer-events: none; overflow: visible; z-index: 50;
+}
+.cf {
+  position: absolute;
+  animation: confetti-f 1s ease-in forwards;
+}
+
+/* 回到首頁按鈕 */
+.restart-btn {
+  width: 100%;
+  height: 44px;
+  background: var(--bg);
+  border: 1.5px solid var(--bdr);
+  border-radius: 22px;
+  font-size: 13px; color: var(--sub);
+  cursor: pointer; font-family: var(--font);
+  transition: border-color .15s;
+  margin-top: 4px;
+}
+.restart-btn:hover { border-color: var(--pk); color: var(--pk-d); }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ── 狀態列 ── -->
+  <div class="status-bar">
+    <div class="sb-pill"></div>
+    <div class="sb-icons">
+      <div class="sb-icon"></div><div class="sb-icon"></div><div class="sb-icon"></div>
+    </div>
+  </div>
+
+  <!-- ── 頂部導覽列 ── -->
+  <nav class="top-nav">
+    <button class="nav-tab active" id="tab-radar" onclick="switchTab('radar')">
+      <div class="nav-tab-icon">📍</div>
+      <div class="nav-tab-lbl">找附近</div>
+    </button>
+    <button class="nav-tab" id="tab-gacha" onclick="switchTab('gacha')">
+      <div class="nav-tab-icon">🎲</div>
+      <div class="nav-tab-lbl">抽行程</div>
+    </button>
+  </nav>
+
+  <!-- ══════════════════════════════════════
+       主內容區
+  ══════════════════════════════════════ -->
+  <div class="main-content">
+
+    <!-- ████ View 1：找附近（LBS 雷達） ████ -->
+    <div class="view active" id="view-radar">
+
+      <!-- 搜尋 + 篩選 -->
+      <div class="radar-topbar">
+        <div class="radar-search-row">
+          <input class="radar-search" id="search-input" type="text" placeholder="搜尋活動、城市、標籤..." autocomplete="off" oninput="handleSearch(this.value)">
+          <button class="radar-loc-btn" onclick="clearSearch()">清除</button>
+        </div>
+        <div class="filter-scroll" id="city-bar" style="margin-bottom:5px">
+          <div class="ftag on" data-city="all" onclick="switchCity(this,'all')">全台</div>
+          <div class="ftag" data-city="台北" onclick="switchCity(this,'台北')">台北</div>
+          <div class="ftag" data-city="新北" onclick="switchCity(this,'新北')">新北</div>
+          <div class="ftag" data-city="桃園" onclick="switchCity(this,'桃園')">桃園</div>
+          <div class="ftag" data-city="台中" onclick="switchCity(this,'台中')">台中</div>
+          <div class="ftag" data-city="台南" onclick="switchCity(this,'台南')">台南</div>
+          <div class="ftag" data-city="高雄" onclick="switchCity(this,'高雄')">高雄</div>
+          <div class="ftag" data-city="宜蘭" onclick="switchCity(this,'宜蘭')">宜蘭</div>
+          <div class="ftag" data-city="花蓮" onclick="switchCity(this,'花蓮')">花蓮</div>
+        </div>
+        <div class="filter-scroll" id="filter-bar">
+          <div class="ftag on" data-key="all"    onclick="applyFilter(this,'all')">全部</div>
+          <div class="ftag"    data-key="tonight" onclick="applyFilter(this,'tonight')">今晚限定</div>
+          <div class="ftag free"  data-key="free"   onclick="applyFilter(this,'free')">免費入場</div>
+          <div class="ftag music" data-key="music"  onclick="applyFilter(this,'music')">音樂祭</div>
+          <div class="ftag food"  data-key="food"   onclick="applyFilter(this,'food')">夜市美食</div>
+          <div class="ftag"    data-key="market" onclick="applyFilter(this,'market')">週末市集</div>
+          <div class="ftag"    data-key="art"    onclick="applyFilter(this,'art')">展覽藝術</div>
+          <div class="ftag"    data-key="indoor" onclick="applyFilter(this,'indoor')">室內活動</div>
+        </div>
+      </div>
+
+      <!-- 地圖 -->
+      <!-- Leaflet 真實地圖容器 -->
+      <div id="leaflet-map" style="height:240px;width:100%;z-index:1;position:relative;"></div>
+
+      <!-- 載入進度條 -->
+      <div id="loading-bar" style="height:3px;background:var(--pk);opacity:0;transition:opacity .3s;position:relative;overflow:hidden">
+        <div style="position:absolute;inset:0;background:var(--pk-d);animation:shine 1.2s ease-in-out infinite;"></div>
+      </div>
+
+      <!-- ★ 模組 2：行程預算吸頂條 ★ -->
+      <div id="budget-bar" style="
+        background:white;
+        border-bottom:2px solid #F4C8C0;
+        padding:10px 14px;
+        position:sticky;top:0;z-index:9;
+        transition:outline .2s;
+      "></div>
+
+      <!-- 列表標題 -->
+      <div class="list-header">
+        <div class="list-header-title" id="list-title">附近 5km · 今天</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="list-count" id="list-count">4 個活動</div>
+          <button class="sort-btn">距離排序 ▾</button>
+        </div>
+      </div>
+
+      <!-- 活動列表 -->
+      <div class="ev-list" id="ev-list"></div>
+      <!-- 空結果畫面 -->
+      <div id="empty-state" style="display:none;flex-direction:column;align-items:center;padding:32px 20px;gap:10px">
+        <svg width="90" height="100" viewBox="0 0 90 105" style="overflow:visible">
+          <g style="animation:bb-float 2.6s ease-in-out infinite;transform-origin:center bottom">
+            <ellipse cx="22" cy="30" rx="18" ry="16" fill="#3D2B1F"/>
+            <ellipse cx="68" cy="30" rx="18" ry="16" fill="#3D2B1F"/>
+            <ellipse cx="22" cy="30" rx="11" ry="10" fill="#4A3428"/>
+            <ellipse cx="68" cy="30" rx="11" ry="10" fill="#4A3428"/>
+            <ellipse cx="45" cy="74" rx="30" ry="28" fill="#3D2B1F"/>
+            <ellipse cx="45" cy="75" rx="26" ry="24" fill="#4A3428"/>
+            <ellipse cx="45" cy="80" rx="14" ry="12" fill="#6B4C3B"/>
+            <ellipse cx="30" cy="96" rx="10" ry="7" fill="#3D2B1F"/>
+            <ellipse cx="60" cy="96" rx="10" ry="7" fill="#3D2B1F"/>
+            <ellipse cx="45" cy="46" rx="32" ry="30" fill="#3D2B1F"/>
+            <ellipse cx="45" cy="47" rx="28" ry="26" fill="#4A3428"/>
+            <ellipse cx="45" cy="54" rx="11" ry="9" fill="#6B4C3B"/>
+            <!-- 哭哭眼睛 -->
+            <path d="M28 40 Q33 35 38 40" stroke="#1A1010" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M52 40 Q57 35 62 40" stroke="#1A1010" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <!-- 嘴巴 -->
+            <path d="M38 57 Q45 52 52 57" stroke="#2D1810" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <!-- 眼淚 -->
+            <ellipse cx="30" cy="45" rx="3" ry="4" fill="#B1D8F3" opacity=".85"/>
+            <ellipse cx="60" cy="45" rx="3" ry="4" fill="#B1D8F3" opacity=".85"/>
+            <ellipse cx="23" cy="50" rx="7" ry="4" fill="#FFB7B2" opacity=".7"/>
+            <ellipse cx="67" cy="50" rx="7" ry="4" fill="#FFB7B2" opacity=".7"/>
+            <ellipse cx="45" cy="21" rx="26" ry="8" fill="#C4956A"/>
+            <path d="M21 21 Q45 6 69 21" fill="#D4A870"/>
+            <ellipse cx="45" cy="21" rx="26" ry="8" fill="#C4956A"/>
+            <rect x="40" y="5" width="10" height="18" rx="4" fill="#8B5E3C"/>
+            <ellipse cx="45" cy="5" rx="7" ry="3.5" fill="#A0714F"/>
+          </g>
+        </svg>
+        <div style="font-size:15px;font-weight:700;color:var(--txt)">BearBear 找不到欸…</div>
+        <div style="font-size:13px;color:var(--sub);text-align:center;line-height:1.6">換個關鍵字試試看？<br>或點上面的縣市標籤切換地區</div>
+        <button onclick="clearSearch()" style="margin-top:4px;background:var(--pk);border:none;border-radius:20px;padding:8px 22px;color:white;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">清除搜尋</button>
+      </div>
+
+      <!-- 詳情抽屜 -->
+      <div class="detail-overlay" id="detail-overlay" onclick="closeDetail(event)">
+        <div class="detail-drawer" id="detail-drawer">
+          <div class="drawer-handle"></div>
+          <div class="detail-hero" id="d-hero">
+            <div class="detail-hero-shine"></div>
+            <button class="detail-back" onclick="closeDetail()">← 返回</button>
+            <div>
+              <div class="detail-tag-badge" id="d-tag"></div>
+              <div class="detail-title" id="d-title"></div>
+            </div>
+          </div>
+          <div class="detail-body">
+            <div class="info-grid"    id="d-grid"></div>
+            <div class="pain-section" id="d-pain"></div>
+            <div>
+              <div class="pain-title" style="margin-bottom:8px">附近網紅推薦美食</div>
+              <div class="food-scroll" id="d-food"></div>
+            </div>
+            <div class="cta-row">
+              <button class="cta-main" onclick="addToTrip()">
+                <div class="cta-main-shine"></div>
+                加入我的行程
+              </button>
+              <button class="cta-save" id="d-nav" onclick="openNavigation()" title="一鍵導航" style="font-size:16px">🧭</button>
+              <button class="cta-save" id="d-save" onclick="toggleSave(this)" title="收藏">♡</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="safe-bottom"></div>
+    </div><!-- /view-radar -->
+
+    <!-- ████ View 2：抽行程（Gacha SPA） ████ -->
+    <div class="view gacha-view" id="view-gacha">
+      <!-- 彩紙容器 -->
+      <div class="confetti-wrap" id="confetti-wrap"></div>
+
+      <div class="gacha-inner">
+        <div class="step-dots" id="step-dots">
+          <div class="step-dot on"></div>
+          <div class="step-dot"></div>
+          <div class="step-dot"></div>
+        </div>
+
+        <!-- Step 0: 心理測驗 -->
+        <div id="step-quiz" style="width:100%;display:flex;flex-direction:column;gap:12px">
+          <div class="bb-zone">
+            <!-- BearBear 小版（對話框旁） -->
+            <svg width="80" height="94" viewBox="0 0 90 105" style="flex-shrink:0;overflow:visible">
+              <g class="bb-body">
+                <ellipse cx="22" cy="30" rx="18" ry="16" fill="#3D2B1F"/>
+                <ellipse cx="68" cy="30" rx="18" ry="16" fill="#3D2B1F"/>
+                <ellipse cx="22" cy="30" rx="11" ry="10" fill="#4A3428"/>
+                <ellipse cx="68" cy="30" rx="11" ry="10" fill="#4A3428"/>
+                <ellipse cx="45" cy="74" rx="30" ry="28" fill="#3D2B1F"/>
+                <ellipse cx="45" cy="75" rx="26" ry="24" fill="#4A3428"/>
+                <ellipse cx="45" cy="80" rx="14" ry="12" fill="#6B4C3B"/>
+                <ellipse cx="30" cy="96" rx="10" ry="7" fill="#3D2B1F"/>
+                <ellipse cx="60" cy="96" rx="10" ry="7" fill="#3D2B1F"/>
+                <ellipse cx="45" cy="46" rx="32" ry="30" fill="#3D2B1F"/>
+                <ellipse cx="45" cy="47" rx="28" ry="26" fill="#4A3428"/>
+                <ellipse cx="45" cy="54" rx="11" ry="9" fill="#6B4C3B"/>
+                <ellipse cx="45" cy="52" rx="5" ry="3.5" fill="#2D1810"/>
+                <path d="M38 57 Q45 63 52 57" stroke="#2D1810" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+                <g class="bb-eye-l" style="transform:translate(30px,42px)">
+                  <ellipse cx="0" cy="0" rx="7" ry="7" fill="#1A1010"/>
+                  <ellipse cx="2.5" cy="-2.5" rx="2.5" ry="2.5" fill="white"/>
+                </g>
+                <g class="bb-eye-r" style="transform:translate(60px,42px)">
+                  <ellipse cx="0" cy="0" rx="7" ry="7" fill="#1A1010"/>
+                  <ellipse cx="2.5" cy="-2.5" rx="2.5" ry="2.5" fill="white"/>
+                </g>
+                <ellipse cx="23" cy="50" rx="7" ry="4" fill="#FFB7B2" opacity=".7"/>
+                <ellipse cx="67" cy="50" rx="7" ry="4" fill="#FFB7B2" opacity=".7"/>
+                <!-- 草帽 -->
+                <ellipse cx="45" cy="21" rx="26" ry="8" fill="#C4956A"/>
+                <path d="M21 21 Q45 6 69 21" fill="#D4A870"/>
+                <ellipse cx="45" cy="21" rx="26" ry="8" fill="#C4956A"/>
+                <rect x="40" y="5" width="10" height="18" rx="4" fill="#8B5E3C"/>
+                <ellipse cx="45" cy="5" rx="7" ry="3.5" fill="#A0714F"/>
+              </g>
+            </svg>
+            <div class="bb-bubble">
+              BearBear 今天要去冒險了！你希望我們今天的行程主題是...？
+              <div class="bb-bubble-sub">選一個，讓熊熊幫你抽 <span class="sp sp-1">✦</span><span class="sp sp-2">✦</span><span class="sp sp-3">✦</span></div>
+            </div>
+          </div>
+          <button class="choice-btn mint" onclick="pickTheme('文青放鬆')">
+            <div class="choice-icon">📚</div>
+            <div><div class="choice-title">文青放鬆</div><div class="choice-sub">熊熊戴眼鏡看書，悠哉逛老街</div></div>
+          </button>
+          <button class="choice-btn yello" onclick="pickTheme('美食探險')">
+            <div class="choice-icon">🍜</div>
+            <div><div class="choice-title">美食探險</div><div class="choice-sub">熊熊拿叉子流口水，吃遍在地</div></div>
+          </button>
+        </div>
+
+        <!-- Step 1: 刮刮卡盲盒 -->
+        <div id="step-gacha" style="width:100%;display:none;flex-direction:column;align-items:center;gap:12px">
+          <div class="gacha-label-top">
+            BearBear 正幫你挑選最完美的行程！<br>
+            <span style="font-size:11px">活動剩餘時間 <span class="sp sp-1">✦</span><span class="sp sp-2">✦</span><span class="sp sp-3">✦</span></span>
+          </div>
+          <div class="cd-row">
+            <div class="cd-unit"><div class="cd-num" id="cd-d">03</div><div class="cd-lbl">天</div></div>
+            <span class="cd-sep">:</span>
+            <div class="cd-unit"><div class="cd-num" id="cd-h">14</div><div class="cd-lbl">時</div></div>
+            <span class="cd-sep">:</span>
+            <div class="cd-unit"><div class="cd-num" id="cd-m">22</div><div class="cd-lbl">分</div></div>
+            <span class="cd-sep">:</span>
+            <div class="cd-unit"><div class="cd-num" id="cd-s">47</div><div class="cd-lbl">秒</div></div>
+          </div>
+          <!-- 盲盒 -->
+          <div class="gacha-box" id="gacha-box">
+            <div class="gacha-box-shine"></div>
+            <!-- 問號 BearBear -->
+            <svg width="70" height="80" viewBox="0 0 90 105" style="position:relative;z-index:1;overflow:visible">
+              <g class="bb-body">
+                <ellipse cx="22" cy="30" rx="18" ry="16" fill="#3D2B1F"/>
+                <ellipse cx="68" cy="30" rx="18" ry="16" fill="#3D2B1F"/>
+                <ellipse cx="22" cy="30" rx="11" ry="10" fill="#4A3428"/>
+                <ellipse cx="68" cy="30" rx="11" ry="10" fill="#4A3428"/>
+                <ellipse cx="45" cy="74" rx="30" ry="28" fill="#3D2B1F"/>
+                <ellipse cx="45" cy="75" rx="26" ry="24" fill="#4A3428"/>
+                <ellipse cx="45" cy="80" rx="14" ry="12" fill="#6B4C3B"/>
+                <ellipse cx="30" cy="96" rx="10" ry="7" fill="#3D2B1F"/>
+                <ellipse cx="60" cy="96" rx="10" ry="7" fill="#3D2B1F"/>
+                <ellipse cx="45" cy="46" rx="32" ry="30" fill="#3D2B1F"/>
+                <ellipse cx="45" cy="47" rx="28" ry="26" fill="#4A3428"/>
+                <ellipse cx="45" cy="54" rx="11" ry="9" fill="#6B4C3B"/>
+                <text x="45" y="58" text-anchor="middle" style="font-size:16px;fill:rgba(255,255,255,.9);font-weight:500">?</text>
+                <g class="bb-eye-l" style="transform:translate(30px,42px)"><ellipse cx="0" cy="0" rx="7" ry="7" fill="#1A1010"/><ellipse cx="2.5" cy="-2.5" rx="2.5" ry="2.5" fill="white"/></g>
+                <g class="bb-eye-r" style="transform:translate(60px,42px)"><ellipse cx="0" cy="0" rx="7" ry="7" fill="#1A1010"/><ellipse cx="2.5" cy="-2.5" rx="2.5" ry="2.5" fill="white"/></g>
+                <ellipse cx="23" cy="50" rx="7" ry="4" fill="#FFB7B2" opacity=".7"/>
+                <ellipse cx="67" cy="50" rx="7" ry="4" fill="#FFB7B2" opacity=".7"/>
+                <ellipse cx="45" cy="21" rx="26" ry="8" fill="#C4956A"/>
+                <path d="M21 21 Q45 6 69 21" fill="#D4A870"/>
+                <ellipse cx="45" cy="21" rx="26" ry="8" fill="#C4956A"/>
+                <rect x="40" y="5" width="10" height="18" rx="4" fill="#8B5E3C"/>
+                <ellipse cx="45" cy="5" rx="7" ry="3.5" fill="#A0714F"/>
+              </g>
+            </svg>
+            <div class="gacha-box-label" id="gacha-box-label">神秘行程<br>等待揭曉！</div>
+            <!-- 刮刮卡遮罩 -->
+            <div class="scratch-mask" id="scratch-mask">
+              <div class="scratch-mask-txt">用力刮開<br>BearBear！</div>
+            </div>
+          </div>
+          <button class="gacha-cta" id="gacha-cta" onclick="doScratch()">
+            <div class="gacha-cta-shine"></div>
+            刮開 BearBear 盲盒！
+          </button>
+        </div>
+
+        <!-- Step 2: 結果 -->
+        <div id="step-result" style="width:100%;display:none;flex-direction:column;align-items:center;gap:12px">
+          <div id="share-capture-zone">
+          <div class="result-card">
+            <div class="result-header" id="result-header">
+              <div class="result-header-shine"></div>
+              <!-- 大拇指 BearBear -->
+              <svg class="thumb-bear" viewBox="0 0 72 80">
+                <g class="bb-body">
+                  <ellipse cx="14" cy="24" rx="12" ry="10" fill="#3D2B1F"/>
+                  <ellipse cx="58" cy="24" rx="12" ry="10" fill="#3D2B1F"/>
+                  <ellipse cx="14" cy="24" rx="7" ry="6" fill="#4A3428"/>
+                  <ellipse cx="58" cy="24" rx="7" ry="6" fill="#4A3428"/>
+                  <ellipse cx="36" cy="54" rx="28" ry="24" fill="#3D2B1F"/>
+                  <ellipse cx="36" cy="55" rx="24" ry="20" fill="#4A3428"/>
+                  <ellipse cx="36" cy="60" rx="13" ry="10" fill="#6B4C3B"/>
+                  <ellipse cx="36" cy="36" rx="28" ry="26" fill="#3D2B1F"/>
+                  <ellipse cx="36" cy="37" rx="24" ry="22" fill="#4A3428"/>
+                  <ellipse cx="36" cy="43" rx="10" ry="8" fill="#6B4C3B"/>
+                  <g class="bb-eye-l" style="transform:translate(25px,34px)"><ellipse cx="0" cy="0" rx="6" ry="6" fill="#1A1010"/><ellipse cx="2" cy="-2" rx="2" ry="2" fill="white"/></g>
+                  <g class="bb-eye-r" style="transform:translate(47px,34px)"><ellipse cx="0" cy="0" rx="6" ry="6" fill="#1A1010"/><ellipse cx="2" cy="-2" rx="2" ry="2" fill="white"/></g>
+                  <ellipse cx="17" cy="36" rx="5" ry="3" fill="#FFB7B2" opacity=".7"/>
+                  <ellipse cx="55" cy="36" rx="5" ry="3" fill="#FFB7B2" opacity=".7"/>
+                  <!-- 拇指讚手勢 -->
+                  <path d="M8 52 Q2 50 4 62 Q6 70 14 68" stroke="#3D2B1F" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+                  <circle cx="14" cy="68" r="5" fill="#FFF1A8"/>
+                  <path d="M64 52 Q70 50 68 62 Q66 70 58 68" stroke="#3D2B1F" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+                  <circle cx="58" cy="68" r="5" fill="#FFF1A8"/>
+                </g>
+              </svg>
+              <div class="result-tag" id="r-tag"></div>
+              <div class="result-title" id="r-title"></div>
+              <div class="result-subtitle" id="r-sub"></div>
+            </div>
+            <div class="result-body">
+              <div class="stats-row" id="r-stats"></div>
+              <div class="stop-list" id="r-stops"></div>
+              <div class="pill-row"  id="r-pills"></div>
+              <div class="cta-row">
+                <button class="cta-main" id="r-go-btn" onclick="handleGo()">
+                  <div class="cta-main-shine"></div>
+                  我要跟 BearBear 一起去！
+                </button>
+                <button id="share-ig-btn" onclick="shareToIG()" style="flex-shrink:0;height:48px;padding:0 14px;background:#FFB7B2;border:none;border-radius:24px;font-size:13px;font-weight:700;color:white;cursor:pointer;font-family:inherit;white-space:nowrap">
+                  分享 IG
+                </button>
+              </div>
+            </div>
+          </div>
+          </div><!-- /share-capture-zone -->
+
+          <!-- 徽章解鎖 -->
+          <div class="badge-reveal" id="badge-reveal">
+            <div class="badge-lbl">BearBear 幫你解鎖了新徽章！</div>
+            <!-- 桃園地頭蛇徽章 SVG -->
+            <svg width="84" height="90" viewBox="0 0 130 140">
+              <polygon points="65,8 78,42 115,42 86,63 97,97 65,76 33,97 44,63 15,42 52,42" fill="#FAC775" stroke="#E8A830" stroke-width="2"/>
+              <polygon points="65,20 75,46 103,46 81,61 89,87 65,72 41,87 49,61 27,46 55,46" fill="#FFF1A8"/>
+              <ellipse cx="65" cy="78" rx="22" ry="20" fill="#4A3428"/>
+              <ellipse cx="65" cy="79" rx="18" ry="16" fill="#5C3D2A"/>
+              <ellipse cx="57" cy="76" rx="4" ry="4" fill="#1A1010"/>
+              <ellipse cx="73" cy="76" rx="4" ry="4" fill="#1A1010"/>
+              <ellipse cx="58" cy="75" rx="1.5" ry="1.5" fill="white"/>
+              <ellipse cx="74" cy="75" rx="1.5" ry="1.5" fill="white"/>
+              <ellipse cx="65" cy="82" rx="4" ry="3" fill="#2D1810"/>
+              <ellipse cx="55" cy="78" rx="4" ry="2.5" fill="#FFB7B2" opacity=".7"/>
+              <ellipse cx="75" cy="78" rx="4" ry="2.5" fill="#FFB7B2" opacity=".7"/>
+              <rect x="44" y="96" width="12" height="8" rx="3" fill="#8B6914"/>
+              <rect x="74" y="96" width="12" height="8" rx="3" fill="#8B6914"/>
+              <rect x="37" y="100" width="56" height="10" rx="4" fill="#C4956A"/>
+              <ellipse cx="65" cy="106" rx="8" ry="4" fill="#A0714F"/>
+              <text x="65" y="128" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#633806;font-family:sans-serif">桃園地頭蛇</text>
+            </svg>
+            <div style="font-size:11px;color:var(--sub)">繼續探索可解鎖更多稀有徽章！</div>
+          </div>
+
+          <button class="restart-btn" onclick="restartGacha()">↺ 再抽一次</button>
+          <div class="safe-bottom"></div>
+        </div>
+
+      </div><!-- /gacha-inner -->
+    </div><!-- /view-gacha -->
+
+  </div><!-- /main-content -->
+</div><!-- /app -->
+
+<!-- ============================================================
+     JavaScript
+     ============================================================ -->
+<script>
+/* ════════════════════════════════════════════════════════════
+   ██  資料層  ██
+   ────────────────────────────────────────────────────────────
+   要替換成真實活動時，只需修改這個 EVENTS 陣列。
+   每筆活動必填欄位說明：
+     id          — 唯一識別碼（字串）
+     name        — 活動名稱
+     time        — 顯示用時間描述
+     dist        — 距離顯示字串（未來可由 Haversine 公式動態算）
+     filter      — 空格分隔的篩選關鍵字（對應篩選標籤 data-key）
+     lat / lng   — 活動地點座標（用於 Leaflet 地圖 & 導航連結）
+     bar / pin   — 色票（列表左邊條 / 地圖大頭針）
+     pin_emoji   — 大頭針圖示
+     tags        — 右側標籤陣列 [{t, bg, c}]
+     hero_color  — 詳情頁頭部背景色
+     dtag        — 詳情標籤文字
+     dtitle      — 詳情標題（\n 換行）
+     grid        — 基本資訊格線 [{icon, lbl, val}]
+     pain        — 痛點資訊列 [{icon, bg, txt}]（txt 可含 HTML）
+     food        — 附近美食 [{name, meta}]
+════════════════════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════════════════════
+   ██  TDX 資料層  ██
+   ────────────────────────────────────────────────────────────
+   架構說明：
+   1. 前端直接呼叫 TDX tourism API（token 由 /api/tdx-token 中繼取得）
+   2. 沒有後端時自動 fallback 到 FALLBACK_EVENTS 靜態資料
+   3. LocalStorage 快取 30 分鐘，減少重複請求
+   4. 縣市切換時只重新 fetch 該縣市資料
+   ════════════════════════════════════════════════════════════
+
+   ★ 部署真實資料前的說明 ★
+   ─────────────────────────────────────────────────────────────
+   目前使用 FALLBACK_EVENTS（靜態 mock）作為預設資料來源。
+   要啟用真實 TDX API，請：
+
+   方法 A（推薦，免費）— GitHub Actions 每日抓取：
+     1. 在 repo 的 Actions 頁面建立 workflow（見 README）
+     2. 每天凌晨 3:00 執行 fetch_tdx.js，結果存成 /data/events.json
+     3. 將下方 TDX_CONFIG.USE_STATIC_JSON 設為 true，並設好 JSON_URL
+
+   方法 B — Cloudflare Workers 中繼（即時資料）：
+     1. 部署 cf-worker/index.js（見 repo 的 cf-worker 資料夾）
+     2. 將 TDX_CONFIG.WORKER_URL 設為你的 Worker URL
+     3. 將 TDX_CONFIG.USE_WORKER 設為 true
+
+   ─────────────────────────────────────────────────────────────
+   ★ 直接改這裡切換資料來源 ★  */
+
+const TDX_CONFIG = {
+  /* ★ 靜態 JSON 模式：GitHub Actions 每日產出 data/events.json ★
+     設為 true 後，APP 會優先讀取 ./data/events.json
+     讀取失敗（檔案不存在或網路錯誤）時自動 fallback 到內建資料 */
+  USE_STATIC_JSON : true,
+  JSON_URL        : './data/events.json',
+
+  /* Cloudflare Worker 即時模式（USE_STATIC_JSON=false 時才生效） */
+  USE_WORKER  : false,
+  WORKER_URL  : 'https://your-worker.your-subdomain.workers.dev/tdx',
+
+  /* 快取：靜態 JSON 模式下快取 6 小時（減少重複 fetch） */
+  CACHE_KEY    : 'bb_events_cache_v2',
+  CACHE_TTL_MS : 6 * 60 * 60 * 1000,
+};
+
+/* ════════════════════════════════════════
+   Fallback 靜態資料（全台 18 筆 Mock）
+   TDX 串接成功後此區塊不再使用
+════════════════════════════════════════ */
+const FALLBACK_EVENTS = [
+  /* ── 台北 ── */
+  { id:'tp0', city:'台北', filter:'market free',
+    lat:25.0478, lng:121.5170, bar:'#B2EBF2', pin:'#B2EBF2',
+    tags:[{t:'免費',bg:'#B2EBF2',c:'#085041'},{t:'市集',bg:'#FFF1A8',c:'#633806'}],
+    name:'迪化街年貨大街', time:'每日 10:00–21:00', dist:'—',
+    pin_emoji:'🏮', is_free:true, is_indoor:false, cost_est:'NT$0 入場',
+    hero_color:'#1A5C7A', dtag:'免費 · 市集', dtitle:'迪化街\n年貨大街',
+    grid:[{icon:'🕗',lbl:'時間',val:'每日 10:00–21:00'},{icon:'📍',lbl:'地點',val:'大同區迪化街一段'},{icon:'🎟',lbl:'票價',val:'免費入場'},{icon:'🅿',lbl:'停車',val:'建議搭捷運（大橋頭站）'}],
+    pain:[{icon:'🚇',bg:'#E6F1FB',txt:'<strong>交通</strong>：捷運大橋頭站步行 5 分，週末開車必塞'},{icon:'🧧',bg:'#FBEAF0',txt:'<strong>必買</strong>：南北貨、花布、台灣茶'},{icon:'📸',bg:'#FAEEDA',txt:'<strong>拍照</strong>：巴洛克建築群，日落前光線最美'},{icon:'👥',bg:'#E1F5EE',txt:'<strong>人潮</strong>：週末中午後非常擠，建議平日前往'}],
+    food:[{name:'永樂市場',meta:'2F 布料，1F 小吃'},{name:'霞海城隍廟旁刈包',meta:'排隊名物'},{name:'大稻埕碼頭咖啡廳',meta:'河景下午茶'}] },
+  { id:'tp1', city:'台北', filter:'art indoor',
+    lat:25.0378, lng:121.5627, bar:'#CECBF6', pin:'#AFA9EC',
+    tags:[{t:'展覽',bg:'#EEEDFE',c:'#3C3489'},{t:'室內',bg:'#E6F1FB',c:'#185FA5'}],
+    name:'松山文創園區特展', time:'週二至日 09:00–18:00', dist:'—',
+    pin_emoji:'◆', is_free:false, is_indoor:true, cost_est:'NT$150–300',
+    hero_color:'#3C3489', dtag:'展覽 · 室內', dtitle:'松山文創園區\n特展',
+    grid:[{icon:'🕗',lbl:'時間',val:'週二至日 09:00–18:00'},{icon:'📍',lbl:'地點',val:'信義區光復南路 133 號'},{icon:'🎟',lbl:'票價',val:'NT$150–300'},{icon:'🅿',lbl:'停車',val:'園區地下停車場 NT$30/hr'}],
+    pain:[{icon:'🎟',bg:'#EEEDFE',txt:'<strong>購票</strong>：建議官網預購，假日常售完'},{icon:'🅿',bg:'#E6F1FB',txt:'<strong>停車</strong>：建議搭捷運國父紀念館站'},{icon:'📷',bg:'#FAEEDA',txt:'<strong>拍照</strong>：古蹟煙囪為地標，外圍可免費拍攝'},{icon:'👶',bg:'#E1F5EE',txt:'<strong>親子</strong>：部分展覽限制年齡，入場前確認'}],
+    food:[{name:'誠品生活松菸',meta:'步行 2 分'},{name:'FIKA FIKA 咖啡',meta:'北歐風選物'},{name:'市府周邊餐廳街',meta:'步行 10 分'}] },
+  /* ── 新北 ── */
+  { id:'nb0', city:'新北', filter:'tonight music free',
+    lat:25.0098, lng:121.4654, bar:'#FFB7B2', pin:'#FFB7B2',
+    tags:[{t:'音樂',bg:'#B1D8F3',c:'#0C447C'},{t:'今晚限定',bg:'#FFB7B2',c:'#712B13'}],
+    name:'板橋新板特區戶外音樂節', time:'今晚 19:00–22:00', dist:'—',
+    pin_emoji:'♪', is_free:true, is_indoor:false, cost_est:'NT$0（完全免費）',
+    hero_color:'#C47B80', dtag:'今晚 · 音樂', dtitle:'板橋戶外\n音樂節',
+    grid:[{icon:'🕗',lbl:'時間',val:'今晚 19:00–22:00'},{icon:'📍',lbl:'地點',val:'板橋新板特區廣場'},{icon:'🎟',lbl:'票價',val:'完全免費'},{icon:'🅿',lbl:'停車',val:'周邊收費停車場 NT$30–50/hr'}],
+    pain:[{icon:'🎵',bg:'#FBEAF0',txt:'<strong>演出</strong>：3 組獨立樂團，每週陣容不同'},{icon:'🌧',bg:'#E6F1FB',txt:'<strong>天氣</strong>：戶外場地，雨天取消'},{icon:'👟',bg:'#E1F5EE',txt:'<strong>穿著</strong>：站立區，建議穿舒適的鞋子'},{icon:'🍺',bg:'#FAEEDA',txt:'<strong>周邊</strong>：現場有文創市集與飲食'}],
+    food:[{name:'新板市場夜市',meta:'步行 3 分'},{name:'麥當勞 24H（板橋站）',meta:'宵夜首選'},{name:'艾可廚房',meta:'步行 5 分'}] },
+  { id:'nb1', city:'新北', filter:'art free indoor',
+    lat:25.0726, lng:121.5027, bar:'#B1D8F3', pin:'#B1D8F3',
+    tags:[{t:'免費',bg:'#B2EBF2',c:'#085041'},{t:'室內',bg:'#E6F1FB',c:'#185FA5'}],
+    name:'十三行博物館考古特展', time:'週二至日 09:30–17:00', dist:'—',
+    pin_emoji:'◆', is_free:false, is_indoor:true, cost_est:'NT$80（6歲以下免費）',
+    hero_color:'#185FA5', dtag:'博物館 · 考古', dtitle:'十三行博物館\n考古特展',
+    grid:[{icon:'🕗',lbl:'時間',val:'週二至日 09:30–17:00'},{icon:'📍',lbl:'地點',val:'八里區博物館路 200 號'},{icon:'🎟',lbl:'票價',val:'NT$80，部分優惠免費'},{icon:'🅿',lbl:'停車',val:'館前免費停車場'}],
+    pain:[{icon:'🚗',bg:'#E6F1FB',txt:'<strong>交通</strong>：自行開車或搭公車，距捷運較遠'},{icon:'👨‍👩‍👧',bg:'#FBEAF0',txt:'<strong>親子</strong>：設有兒童考古體驗區'},{icon:'🌊',bg:'#E1F5EE',txt:'<strong>周邊</strong>：可結合淡水老街半日遊'},{icon:'📚',bg:'#FAEEDA',txt:'<strong>建議</strong>：平日人少，適合深度參觀'}],
+    food:[{name:'八里渡船頭老街',meta:'步行 10 分'},{name:'阿婆鐵蛋',meta:'八里名產'},{name:'淡水老街',meta:'搭渡輪 10 分'}] },
+  /* ── 桃園 ── */
+  { id:'ty0', city:'桃園', filter:'tonight music',
+    lat:24.9535, lng:121.2260, bar:'#FFB7B2', pin:'#FFB7B2',
+    tags:[{t:'今晚限定',bg:'#FFB7B2',c:'#712B13'},{t:'音樂',bg:'#B1D8F3',c:'#0C447C'}],
+    name:'桃園地下室獨立樂團之夜', time:'今晚 20:00', dist:'1.2km',
+    pin_emoji:'♪', is_free:false, is_indoor:true, cost_est:'NT$300 入場',
+    hero_color:'#C47B80', dtag:'今晚限定 · 音樂演出', dtitle:'桃園地下室\n獨立樂團之夜',
+    grid:[{icon:'🕗',lbl:'時間',val:'今晚 20:00–23:00'},{icon:'📍',lbl:'地點',val:'中壢區文化路 88 號'},{icon:'🎟',lbl:'票價',val:'NT$300 / 人'},{icon:'🅿',lbl:'停車',val:'路邊停車，平日免費'}],
+    pain:[{icon:'🎟',bg:'#FBEAF0',txt:'<strong>售票</strong>：現場購票，建議 19:30 前抵達'},{icon:'🅿',bg:'#E6F1FB',txt:'<strong>停車</strong>：路邊約 20 格，或華勒廣場地下停車場'},{icon:'🌧',bg:'#E1F5EE',txt:'<strong>天氣備案</strong>：室內場地，下雨照常舉辦'},{icon:'👥',bg:'#FAEEDA',txt:'<strong>人潮</strong>：約 200 人'}],
+    food:[{name:'老王涼麵',meta:'步行 3 分'},{name:'阿財豬血湯',meta:'步行 5 分'},{name:'24H 燒烤攤',meta:'步行 2 分'}] },
+  { id:'ty1', city:'桃園', filter:'free market',
+    lat:24.8796, lng:121.2873, bar:'#B2EBF2', pin:'#B2EBF2',
+    tags:[{t:'免費',bg:'#B2EBF2',c:'#085041'},{t:'市集',bg:'#FFF1A8',c:'#633806'}],
+    name:'大溪文青市集 × 手作展', time:'週六日 10:00–18:00', dist:'2.8km',
+    pin_emoji:'★', is_free:true, is_indoor:false, cost_est:'NT$0 入場',
+    hero_color:'#3B8060', dtag:'免費 · 週末市集', dtitle:'大溪文青市集\n× 手作展',
+    grid:[{icon:'🕗',lbl:'時間',val:'週六日 10:00–18:00'},{icon:'📍',lbl:'地點',val:'大溪木藝生態博物館'},{icon:'🎟',lbl:'票價',val:'完全免費'},{icon:'🅿',lbl:'停車',val:'館前停車場 200 格'}],
+    pain:[{icon:'🅿',bg:'#E6F1FB',txt:'<strong>停車</strong>：10 點前抵達可找到免費路邊車位'},{icon:'☀',bg:'#FAEEDA',txt:'<strong>戶外市集</strong>：建議帶傘或防曬'},{icon:'🧺',bg:'#E1F5EE',txt:'<strong>必買</strong>：手工皂、大溪豆干禮盒'},{icon:'👶',bg:'#FBEAF0',txt:'<strong>親子</strong>：設有兒童手作區'}],
+    food:[{name:'大溪豆干老舖',meta:'步行 2 分'},{name:'老街粉圓冰',meta:'步行 3 分'},{name:'阿婆割包',meta:'步行 5 分'}] },
+  { id:'ty2', city:'桃園', filter:'food',
+    lat:25.0632, lng:121.2971, bar:'#FFF1A8', pin:'#FFF1A8',
+    tags:[{t:'夜市美食',bg:'#FFF1A8',c:'#633806'},{t:'常態',bg:'#F1EFE8',c:'#444441'}],
+    name:'南崁夜市 × 週末加場', time:'週五六日 17:30', dist:'3.5km',
+    pin_emoji:'🍜', is_free:true, is_indoor:false, cost_est:'NT$100–300 餐費',
+    hero_color:'#8B6010', dtag:'夜市美食 · 常態', dtitle:'南崁夜市\n× 週末加場',
+    grid:[{icon:'🕗',lbl:'時間',val:'週五六日 17:30–00:00'},{icon:'📍',lbl:'地點',val:'蘆竹區南崁路'},{icon:'🎟',lbl:'票價',val:'免費入場'},{icon:'🅿',lbl:'停車',val:'周邊路邊免費停車'}],
+    pain:[{icon:'🍢',bg:'#FAEEDA',txt:'<strong>本週限定</strong>：日式唐揚雞，週末才有'},{icon:'🚌',bg:'#E6F1FB',txt:'<strong>交通</strong>：桃園火車站搭 5127 公車直達'},{icon:'💳',bg:'#E1F5EE',txt:'<strong>支付</strong>：約 60% 攤位可行動支付'},{icon:'⏰',bg:'#FBEAF0',txt:'<strong>最佳時段</strong>：19:00–21:00'}],
+    food:[{name:'豬血糕老攤',meta:'30 年老店'},{name:'炭烤玉米',meta:'排隊王'},{name:'古早味紅茶',meta:'NT$25'}] },
+  { id:'ty3', city:'桃園', filter:'art free',
+    lat:24.9927, lng:121.2988, bar:'#B1D8F3', pin:'#B1D8F3',
+    tags:[{t:'燈會',bg:'#B1D8F3',c:'#0C447C'},{t:'免費',bg:'#B2EBF2',c:'#085041'}],
+    name:'桃園 2025 台灣燈會', time:'即日起至 3/15 每晚', dist:'4.1km',
+    pin_emoji:'◆', is_free:true, is_indoor:false, cost_est:'NT$0（完全免費）',
+    hero_color:'#185FA5', dtag:'燈會 · 期間限定', dtitle:'桃園 2025\n台灣燈會',
+    grid:[{icon:'🕗',lbl:'時間',val:'即日起 – 3/15 每晚'},{icon:'📍',lbl:'地點',val:'桃園展演中心周邊'},{icon:'🎟',lbl:'票價',val:'完全免費'},{icon:'🅿',lbl:'停車',val:'建議搭捷運，車位極少'}],
+    pain:[{icon:'🚇',bg:'#E6F1FB',txt:'<strong>最強建議</strong>：捷運 A18 站步行 8 分'},{icon:'📸',bg:'#FAEEDA',txt:'<strong>拍照黃金時段</strong>：18:30 天色未暗最美'},{icon:'🧥',bg:'#E1F5EE',txt:'<strong>穿著</strong>：夜間偏涼，帶薄外套'},{icon:'🕗',bg:'#FBEAF0',txt:'<strong>人潮預警</strong>：週末 19:00–21:00 為高峰'}],
+    food:[{name:'燈會美食街',meta:'30 攤以上'},{name:'黑糖珍珠奶茶',meta:'爆紅攤位'},{name:'大腸包小腸',meta:'步行 3 分'}] },
+  /* ── 台中 ── */
+  { id:'tc0', city:'台中', filter:'market free',
+    lat:24.1477, lng:120.6736, bar:'#FFF1A8', pin:'#FFF1A8',
+    tags:[{t:'免費',bg:'#B2EBF2',c:'#085041'},{t:'市集',bg:'#FFF1A8',c:'#633806'}],
+    name:'審計新村創意市集', time:'週六日 12:00–21:00', dist:'—',
+    pin_emoji:'★', is_free:true, is_indoor:false, cost_est:'NT$0 入場',
+    hero_color:'#8B6010', dtag:'文創 · 市集', dtitle:'審計新村\n創意市集',
+    grid:[{icon:'🕗',lbl:'時間',val:'週六日 12:00–21:00'},{icon:'📍',lbl:'地點',val:'西區民生路 368 巷'},{icon:'🎟',lbl:'票價',val:'免費入場'},{icon:'🅿',lbl:'停車',val:'周邊路邊停車或停勤益'}],
+    pain:[{icon:'☕',bg:'#FAEEDA',txt:'<strong>必訪</strong>：老宅改建文創空間，台中文青聖地'},{icon:'🍦',bg:'#E1F5EE',txt:'<strong>美食</strong>：霜淇淋、手工飲品集中一條巷'},{icon:'📸',bg:'#FBEAF0',txt:'<strong>拍照</strong>：彩色牆面必拍，下午光線最美'},{icon:'👗',bg:'#E6F1FB',txt:'<strong>購物</strong>：獨立設計師品牌，原創不重複'}],
+    food:[{name:'春水堂（本店）',meta:'珍奶發源地'},{name:'第二市場',meta:'步行 10 分'},{name:'宮原眼科',meta:'步行 8 分'}] },
+  { id:'tc1', city:'台中', filter:'art indoor free',
+    lat:24.1801, lng:120.6454, bar:'#CECBF6', pin:'#AFA9EC',
+    tags:[{t:'展覽',bg:'#EEEDFE',c:'#3C3489'},{t:'室內',bg:'#E6F1FB',c:'#185FA5'}],
+    name:'台中國家歌劇院週末導覽', time:'週六日 10:00 / 14:00', dist:'—',
+    pin_emoji:'◆', is_free:true, is_indoor:true, cost_est:'NT$0（導覽免費）',
+    hero_color:'#3C3489', dtag:'建築 · 免費導覽', dtitle:'台中歌劇院\n週末導覽',
+    grid:[{icon:'🕗',lbl:'時間',val:'週六日 10:00 / 14:00'},{icon:'📍',lbl:'地點',val:'西屯區惠來路二段 101 號'},{icon:'🎟',lbl:'票價',val:'導覽免費，演出另計'},{icon:'🅿',lbl:'停車',val:'地下停車場 NT$30/hr'}],
+    pain:[{icon:'🏛',bg:'#EEEDFE',txt:'<strong>建築</strong>：伊東豊雄設計，世界級曲牆建築'},{icon:'📝',bg:'#E6F1FB',txt:'<strong>報名</strong>：官網事先預約，額滿為止'},{icon:'☕',bg:'#FAEEDA',txt:'<strong>周邊</strong>：B1 歌劇院咖啡廳，設計感強'},{icon:'🚇',bg:'#E1F5EE',txt:'<strong>交通</strong>：台中捷運水安里站步行 12 分'}],
+    food:[{name:'歌劇院 B1 咖啡廳',meta:'建築內用餐'},{name:'勤美誠品',meta:'步行 5 分'},{name:'繼光街夜市',meta:'步行 15 分'}] },
+  /* ── 台南 ── */
+  { id:'tn0', city:'台南', filter:'food market',
+    lat:22.9908, lng:120.2133, bar:'#FAC775', pin:'#EF9F27',
+    tags:[{t:'夜市',bg:'#FFF1A8',c:'#633806'},{t:'美食',bg:'#FAC775',c:'#412402'}],
+    name:'花園夜市（週末限定）', time:'週四六日 18:00–01:00', dist:'—',
+    pin_emoji:'🍜', is_free:true, is_indoor:false, cost_est:'NT$200–500 餐費',
+    hero_color:'#854F0B', dtag:'夜市 · 台南美食', dtitle:'花園夜市\n週末限定',
+    grid:[{icon:'🕗',lbl:'時間',val:'週四六日 18:00–01:00'},{icon:'📍',lbl:'地點',val:'北區海安路三段'},{icon:'🎟',lbl:'票價',val:'免費入場'},{icon:'🅿',lbl:'停車',val:'周邊停車場 NT$20–30/hr'}],
+    pain:[{icon:'🍢',bg:'#FAEEDA',txt:'<strong>規模</strong>：全台最大夜市之一，超過 400 個攤位'},{icon:'🌡',bg:'#FBEAF0',txt:'<strong>天氣</strong>：台南夏天非常熱，建議帶水'},{icon:'💳',bg:'#E1F5EE',txt:'<strong>支付</strong>：大多現金，備足零錢'},{icon:'⏰',bg:'#E6F1FB',txt:'<strong>尖峰</strong>：20:00–22:00 人潮最多'}],
+    food:[{name:'蚵仔煎老攤',meta:'傳承三代'},{name:'棺材板（發源店）',meta:'台南名物'},{name:'牛肉湯',meta:'台南早餐文化'}] },
+  { id:'tn1', city:'台南', filter:'art free',
+    lat:22.9962, lng:120.2068, bar:'#F0997B', pin:'#D85A30',
+    tags:[{t:'藝術節',bg:'#FAECE7',c:'#712B13'},{t:'免費',bg:'#B2EBF2',c:'#085041'}],
+    name:'台南月津港燈節', time:'即日起至 2/23 每晚', dist:'—',
+    pin_emoji:'◆', is_free:true, is_indoor:false, cost_est:'NT$0（免費）',
+    hero_color:'#993C1D', dtag:'燈節 · 免費', dtitle:'台南月津港\n燈節',
+    grid:[{icon:'🕗',lbl:'時間',val:'即日起至 2/23 每晚'},{icon:'📍',lbl:'地點',val:'鹽水區中山路'},{icon:'🎟',lbl:'票價',val:'完全免費'},{icon:'🅿',lbl:'停車',val:'鹽水周邊免費停車場'}],
+    pain:[{icon:'🚌',bg:'#E6F1FB',txt:'<strong>交通</strong>：從台南市區搭接駁車或自行開車'},{icon:'📸',bg:'#FAEEDA',txt:'<strong>燈光藝術</strong>：國際藝術家設計，水面倒影絕美'},{icon:'🧥',bg:'#E1F5EE',txt:'<strong>穿著</strong>：建議穿防蚊長褲'},{icon:'🍜',bg:'#FBEAF0',txt:'<strong>在地美食</strong>：鹽水意麵必吃'}],
+    food:[{name:'鹽水意麵老店',meta:'必吃台南名物'},{name:'阿章鵝肉',meta:'在地老店'},{name:'月津港旁小吃攤',meta:'現場限定'}] },
+  /* ── 高雄 ── */
+  { id:'ks0', city:'高雄', filter:'music free',
+    lat:22.6273, lng:120.3014, bar:'#97C459', pin:'#639922',
+    tags:[{t:'音樂節',bg:'#EAF3DE',c:'#27500A'},{t:'免費',bg:'#B2EBF2',c:'#085041'}],
+    name:'駁二藝術特區週末演出', time:'週六日 15:00–20:00', dist:'—',
+    pin_emoji:'♪', is_free:true, is_indoor:false, cost_est:'NT$0（免費）',
+    hero_color:'#3B6D11', dtag:'音樂 · 藝術', dtitle:'駁二藝術特區\n週末演出',
+    grid:[{icon:'🕗',lbl:'時間',val:'週六日 15:00–20:00'},{icon:'📍',lbl:'地點',val:'鹽埕區大勇路 1 號'},{icon:'🎟',lbl:'票價',val:'免費入場'},{icon:'🅿',lbl:'停車',val:'園區收費停車場'}],
+    pain:[{icon:'🎵',bg:'#EAF3DE',txt:'<strong>演出</strong>：本地獨立樂團＋街頭藝人，每週不同'},{icon:'☀',bg:'#FAEEDA',txt:'<strong>日曬</strong>：戶外場地，防曬必備'},{icon:'🚇',bg:'#E6F1FB',txt:'<strong>交通</strong>：輕軌駁二蓬萊站即到'},{icon:'🍻',bg:'#E1F5EE',txt:'<strong>氣氛</strong>：可帶外食，現場有飲料小販'}],
+    food:[{name:'六合夜市',meta:'步行 15 分'},{name:'棧貳庫餐廳',meta:'駁二園區內'},{name:'三輪車鹹粥',meta:'高雄早餐文化'}] },
+  { id:'ks1', city:'高雄', filter:'art indoor',
+    lat:22.6146, lng:120.2942, bar:'#B1D8F3', pin:'#85B7EB',
+    tags:[{t:'展覽',bg:'#EEEDFE',c:'#3C3489'},{t:'室內',bg:'#E6F1FB',c:'#185FA5'}],
+    name:'高雄市立美術館特展', time:'週二至日 09:00–17:00', dist:'—',
+    pin_emoji:'◆', is_free:false, is_indoor:true, cost_est:'NT$90（常設免費）',
+    hero_color:'#185FA5', dtag:'美術館 · 展覽', dtitle:'高雄市立美術館\n特展',
+    grid:[{icon:'🕗',lbl:'時間',val:'週二至日 09:00–17:00'},{icon:'📍',lbl:'地點',val:'鼓山區美術館路 80 號'},{icon:'🎟',lbl:'票價',val:'常設免費 / 特展 NT$90'},{icon:'🅿',lbl:'停車',val:'館前停車場，假日擁擠'}],
+    pain:[{icon:'🖼',bg:'#EEEDFE',txt:'<strong>規模</strong>：南台灣最大美術館，常設展免費'},{icon:'🌳',bg:'#E1F5EE',txt:'<strong>周邊</strong>：美術館公園適合散步'},{icon:'📸',bg:'#FAEEDA',txt:'<strong>拍照</strong>：建築與雕塑公園都很適合攝影'},{icon:'👶',bg:'#FBEAF0',txt:'<strong>親子</strong>：設有兒童藝術教育空間'}],
+    food:[{name:'美術館前咖啡廳',meta:'館內用餐'},{name:'內惟埤文化園區',meta:'步行 5 分'},{name:'左營蓮池潭',meta:'車程 10 分'}] },
+  /* ── 宜蘭 ── */
+  { id:'yl0', city:'宜蘭', filter:'market free',
+    lat:24.7569, lng:121.7538, bar:'#B2EBF2', pin:'#6CC8D4',
+    tags:[{t:'市集',bg:'#FFF1A8',c:'#633806'},{t:'免費',bg:'#B2EBF2',c:'#085041'}],
+    name:'宜蘭幸福轉運站週末市集', time:'週六日 10:00–18:00', dist:'—',
+    pin_emoji:'★', is_free:true, is_indoor:false, cost_est:'NT$0 入場',
+    hero_color:'#0F6E56', dtag:'市集 · 親子', dtitle:'宜蘭幸福轉運站\n週末市集',
+    grid:[{icon:'🕗',lbl:'時間',val:'週六日 10:00–18:00'},{icon:'📍',lbl:'地點',val:'宜蘭市蘭城新月廣場旁'},{icon:'🎟',lbl:'票價',val:'免費入場'},{icon:'🅿',lbl:'停車',val:'蘭城廣場地下停車場 NT$20/hr'}],
+    pain:[{icon:'🌿',bg:'#E1F5EE',txt:'<strong>在地特色</strong>：宜蘭農產品直販、手工藝市集'},{icon:'🚂',bg:'#E6F1FB',txt:'<strong>交通</strong>：宜蘭火車站步行 5 分'},{icon:'🌧',bg:'#FBEAF0',txt:'<strong>雨天備案</strong>：宜蘭多雨，部分攤位有遮雨棚'},{icon:'🍜',bg:'#FAEEDA',txt:'<strong>美食</strong>：宜蘭豬血腸、卜肉（炸豬肉）'}],
+    food:[{name:'宜蘭市場',meta:'步行 5 分'},{name:'金棗糕本舖',meta:'伴手禮首選'},{name:'蔥油餅攤',meta:'三星蔥現做'}] },
+  /* ── 花蓮 ── */
+  { id:'hl0', city:'花蓮', filter:'art free',
+    lat:23.9871, lng:121.6069, bar:'#97C459', pin:'#639922',
+    tags:[{t:'藝術',bg:'#EAF3DE',c:'#27500A'},{t:'免費',bg:'#B2EBF2',c:'#085041'}],
+    name:'花蓮文創園區假日藝集', time:'週六日 10:00–18:00', dist:'—',
+    pin_emoji:'◆', is_free:true, is_indoor:false, cost_est:'NT$0 入場',
+    hero_color:'#27500A', dtag:'文創 · 藝術', dtitle:'花蓮文創園區\n假日藝集',
+    grid:[{icon:'🕗',lbl:'時間',val:'週六日 10:00–18:00'},{icon:'📍',lbl:'地點',val:'花蓮市中華路 144 號'},{icon:'🎟',lbl:'票價',val:'免費入場'},{icon:'🅿',lbl:'停車',val:'園區附設停車場（免費）'}],
+    pain:[{icon:'🎨',bg:'#EAF3DE',txt:'<strong>特色</strong>：日式宿舍群改建，東台灣最大文創基地'},{icon:'🚂',bg:'#E6F1FB',txt:'<strong>交通</strong>：花蓮火車站步行 20 分，建議騎自行車'},{icon:'🌊',bg:'#E1F5EE',txt:'<strong>周邊</strong>：結合花蓮港遊艇碼頭，景色壯闊'},{icon:'🐻',bg:'#FBEAF0',txt:'<strong>BearBear 推薦</strong>：園區內有在地設計師品牌'}],
+    food:[{name:'自強夜市',meta:'步行 5 分'},{name:'公正包子',meta:'花蓮名物'},{name:'液香扁食',meta:'在地水餃老店'}] },
+];
+
+/* ════════════════════════════════════════
+   ★ TDX 資料轉換器 ★
+   將 TDX API 回傳的原始格式轉換為 APP 內部格式
+   未來切換資料源時只需修改此函式
+════════════════════════════════════════ */
+function transformTdxEvent(raw, index) {
+  try {
+  /* TDX 觀光活動 API 欄位對應 */
+  const name  = raw.ActivityName || raw.Name || '未命名活動';
+  const city  = (raw.City || raw.CityName || '其他').replace('臺', '台');
+  const addr  = raw.Address || raw.Location || '';
+  const start = raw.StartTime ? raw.StartTime.slice(0,10) : '';
+  const end   = raw.EndTime   ? raw.EndTime.slice(0,10)   : '';
+  const lat   = parseFloat(raw.Position?.PositionLat || raw.Latitude  || 0);
+  const lng   = parseFloat(raw.Position?.PositionLon || raw.Longitude || 0);
+  const isFree = !raw.Charge || raw.Charge === '免費' || raw.Charge === '0';
+
+  /* 類型標籤推斷 */
+  const desc  = (raw.Description || '').toLowerCase();
+  let filter  = '';
+  if (/音樂|演唱|樂團|concert/i.test(name+desc)) filter += 'music ';
+  if (/市集|攤販|手作|bazaar/i.test(name+desc))  filter += 'market ';
+  if (/展覽|美術|博物|gallery/i.test(name+desc))  filter += 'art ';
+  if (/夜市|美食|小吃|food/i.test(name+desc))     filter += 'food ';
+  if (/室內|館內|indoor/i.test(name+desc))         filter += 'indoor ';
+  if (isFree) filter += 'free ';
+  filter = filter.trim() || 'art';
+
+  /* 顏色對應 */
+  const CITY_COLOR = {
+    '台北':'#B1D8F3','新北':'#FFB7B2','桃園':'#B2EBF2','台中':'#FFF1A8',
+    '台南':'#FAC775','高雄':'#97C459','宜蘭':'#9FE1CB','花蓮':'#C0DD97',
+  };
+  const bar = CITY_COLOR[city] || '#D3D1C7';
+
+  return {
+    id: raw.ActivityID || `tdx_${index}`,
+    city, filter, lat, lng, bar, pin: bar,
+    tags: [
+      isFree ? {t:'免費',bg:'#B2EBF2',c:'#085041'} : {t:'付費',bg:'#F1EFE8',c:'#5F5E5A'},
+      {t:city, bg: bar, c:'#1A1209'},
+    ],
+    name, time: start ? `${start} – ${end || ''}` : '時間洽主辦單位',
+    dist:'—', pin_emoji:'◆',
+    is_free: isFree, is_indoor: /室內|館內/.test(name+desc),
+    cost_est: isFree ? 'NT$0（免費）' : (raw.Charge || '費用洽主辦'),
+    hero_color: '#185FA5',
+    dtag: `${city} · ${filter.split(' ')[0]}`,
+    dtitle: name,
+    grid:[
+      {icon:'🕗', lbl:'時間', val: start ? `${start}${end?' – '+end:''}` : '洽主辦單位'},
+      {icon:'📍', lbl:'地點', val: addr || city},
+      {icon:'🎟', lbl:'票價', val: isFree ? '免費入場' : (raw.Charge || '洽主辦')},
+      {icon:'🔗', lbl:'資訊', val: raw.WebsiteUrl ? '官網連結（點右上角）' : '無官網'},
+    ],
+    pain:[
+      {icon:'📋', bg:'#E6F1FB', txt:`<strong>主辦單位</strong>：${raw.Organizer || '洽主辦'}`},
+      {icon:'📍', bg:'#FAEEDA', txt:`<strong>地址</strong>：${addr || '詳見官網'}`},
+      {icon:'🎟', bg:'#E1F5EE', txt:`<strong>費用</strong>：${isFree?'完全免費':(raw.Charge||'詳見官網')}`},
+      {icon:'🌐', bg:'#FBEAF0', txt: raw.WebsiteUrl ? `<strong>官網</strong>：<a href="${raw.WebsiteUrl}" target="_blank" style="color:#185FA5">點此開啟</a>` : '<strong>官網</strong>：暫無'},
+    ],
+    food:[],   /* TDX 無周邊美食資料，可日後串接 Google Places */
+    _raw: raw,
+  };
+  } catch(e) {
+    /* 單筆資料格式異常不中斷整批處理 */
+    return null;
+  }
+}
+
+/* ════════════════════════════════════════
+   非同步資料載入層
+════════════════════════════════════════ */
+
+/* 全域 EVENTS 陣列：初始用 Fallback，fetch 成功後替換 */
+let EVENTS = [...FALLBACK_EVENTS];
+
+/* 全量快取：只 fetch 一次完整 events.json，縣市切換在前端過濾 */
+let _allEventsCache   = null;   /* 記憶全量資料 */
+window._getEventsCache = () => _allEventsCache;
+let _cacheLoadedAt    = 0;      /* 快取寫入時間 */
+
+async function loadEvents(city = 'all') {
+  /* ── 步驟 1：若全量快取未過期，直接用 ── */
+  const now = Date.now();
+  if (_allEventsCache && now - _cacheLoadedAt < TDX_CONFIG.CACHE_TTL_MS) {
+    EVENTS = city === 'all'
+      ? _allEventsCache
+      : _allEventsCache.filter(e => e.city === city);
+    refreshList();
+    renderLeafletPins(EVENTS);
+    return;
+  }
+
+  /* ── 步驟 2：嘗試讀 LocalStorage（跨頁面快取） ── */
+  try {
+    const stored = JSON.parse(localStorage.getItem(TDX_CONFIG.CACHE_KEY) || 'null');
+    if (stored && now - stored.ts < TDX_CONFIG.CACHE_TTL_MS && stored.data?.length > 0) {
+      _allEventsCache = stored.data;
+      _cacheLoadedAt  = stored.ts;
+      EVENTS = city === 'all' ? stored.data : stored.data.filter(e => e.city === city);
+      console.info(`[Cache] LocalStorage 命中，${stored.data.length} 筆`);
+      refreshList();
+      renderLeafletPins(EVENTS);
+      return;
+    }
+  } catch(_) {}
+
+  /* ── 步驟 3：網路請求 ── */
+  showLoading(true);
+
+  try {
+    let allData = null;
+
+    /* 模式 A：靜態 JSON（GitHub Actions 產出的 data/events.json） */
+    if (TDX_CONFIG.USE_STATIC_JSON) {
+      const res = await fetch(TDX_CONFIG.JSON_URL, {
+        /* 強制向 CDN/伺服器驗證，不用瀏覽器磁碟快取 */
+        cache: 'no-cache',
+        headers: { 'Accept': 'application/json' },
+      });
+      if (!res.ok) throw new Error(`fetch events.json 失敗：HTTP ${res.status}`);
+      const payload = await res.json();
+
+      /* fetch_tdx.js 產出格式：{ updated_at, count, events: [...] } */
+      if (payload.events && Array.isArray(payload.events)) {
+        allData = payload.events;
+        console.info(`[Data] events.json 載入 ${allData.length} 筆（更新：${payload.updated_at || '未知'}）`);
+      }
+      /* 相容舊格式（純陣列） */
+      else if (Array.isArray(payload)) {
+        allData = payload[0]?.city
+          ? payload
+          : payload.map((r, i) => transformTdxEvent(r, i)).filter(Boolean);
+      }
+    }
+
+    /* 模式 B：Cloudflare Worker 即時 */
+    else if (TDX_CONFIG.USE_WORKER) {
+      const res = await fetch(TDX_CONFIG.WORKER_URL, {
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!res.ok) throw new Error(`Worker fetch 失敗：HTTP ${res.status}`);
+      const raw = await res.json();
+      allData = Array.isArray(raw)
+        ? raw.map((r, i) => transformTdxEvent(r, i)).filter(Boolean)
+        : [];
+    }
+
+    /* 模式 C：僅使用 Fallback */
+    else {
+      console.info('[Data] 使用靜態 Fallback 資料（TDX 未設定）');
+      allData = [...FALLBACK_EVENTS];
+    }
+
+    if (allData && allData.length > 0) {
+      /* 更新記憶體快取 */
+      _allEventsCache = allData;
+      _cacheLoadedAt  = now;
+      /* 寫 LocalStorage 快取（容量超出靜默略過） */
+      try {
+        localStorage.setItem(TDX_CONFIG.CACHE_KEY,
+          JSON.stringify({ ts: now, data: allData }));
+      } catch(_) {}
+
+      EVENTS = city === 'all' ? allData : allData.filter(e => e.city === city);
+    } else {
+      throw new Error('API 回傳空陣列');
+    }
+
+  } catch(err) {
+    console.warn(`[Data] 載入失敗（${err.message}），使用 Fallback`);
+    _allEventsCache = [...FALLBACK_EVENTS];
+    _cacheLoadedAt  = now;
+    EVENTS = city === 'all'
+      ? [...FALLBACK_EVENTS]
+      : FALLBACK_EVENTS.filter(e => e.city === city);
+  } finally {
+    showLoading(false);
+    refreshList();
+    renderLeafletPins(EVENTS);
+  }
+}
+
+/* _switchCityLoad defined below */
+
+function showLoading(on) {
+  const el = document.getElementById('loading-bar');
+  if (!el) return;
+  el.style.opacity = on ? '1' : '0';
+}
+
+/* ════════════════════════════════════════
+   行程資料庫（Gacha 結果，固定不受 API 影響）
+════════════════════════════════════════ */
+const ITINERARIES = {
+  '文青放鬆': {
+    tag:'BearBear 的文青精選', headerColor:'#C47B80',
+    title:'台北大稻埕\n文青半日遊', sub:'台北市大同區 · 4 景點 · 約 5 小時',
+    stats:[{num:'4',lbl:'景點'},{num:'5h',lbl:'旅程'},{num:'NT$350',lbl:'預估花費'}],
+    stops:[
+      {n:'永樂市場',t:'09:30',m:'花布老建築、南北貨探索'},
+      {n:'霞海城隍廟巷弄',t:'10:30',m:'文青選物店聚集地'},
+      {n:'大稻埕碼頭',t:'12:00',m:'淡水河景、IG 絕美取景地'},
+      {n:'阿城鵝肉老店',t:'13:00',m:'50 年老店、銅板美食'},
+    ],
+    pills:[{t:'文青',c:'pill-pk'},{t:'老街',c:'pill-pk'},{t:'免費景點',c:'pill-bl'},{t:'美食',c:'pill-mn'}],
+  },
+  '美食探險': {
+    tag:'BearBear 的美食地圖', headerColor:'#8B6010',
+    title:'桃園在地\n美食大冒險', sub:'桃園市中壢・大溪 · 4 景點 · 約 6 小時',
+    stats:[{num:'4',lbl:'景點'},{num:'6h',lbl:'旅程'},{num:'NT$680',lbl:'預估花費'}],
+    stops:[
+      {n:'大溪老街豆干市集',t:'10:00',m:'滷豆干、花生、零食一條街'},
+      {n:'阿嬤の割包',t:'11:30',m:'傳說中排隊 40 分鐘的古早味'},
+      {n:'八德埤塘公園',t:'13:30',m:'散步消化 + 網美拍照'},
+      {n:'龜山夜市',t:'18:00',m:'在地人才知道的銅板美食'},
+    ],
+    pills:[{t:'美食',c:'pill-pk'},{t:'在地小吃',c:'pill-pk'},{t:'老街',c:'pill-bl'},{t:'親子友善',c:'pill-mn'}],
+  },
+};
+
+/* ════════════════════════════════════════
+   搜尋 + 篩選 + 縣市切換邏輯
+════════════════════════════════════════ */
+const CITY_LS_KEY = 'bb_last_city_v1';
+
+let currentFilter  = 'all';
+let currentCity    = localStorage.getItem(CITY_LS_KEY) || 'all';
+let currentSearch  = '';
+
+/* 三維度過濾 */
+function getFiltered() {
+  const q = currentSearch.trim().toLowerCase();
+  return EVENTS.filter(ev => {
+    if (currentCity !== 'all' && ev.city !== currentCity) return false;
+    if (currentFilter !== 'all' && !ev.filter.includes(currentFilter)) return false;
+    if (q) {
+      const hay = [ev.name, ev.city, ev.time, ev.filter,
+                   ev.tags.map(t=>t.t).join(' '), ev.dtag||''].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function refreshList() {
+  const filtered = getFiltered();
+  renderList(filtered);
+  renderLeafletPins(filtered);
+  const cityLabel = currentCity === 'all' ? '全台' : currentCity;
+  document.getElementById('list-title').textContent = `${cityLabel} · 活動`;
+  document.getElementById('list-count').textContent = filtered.length + ' 個活動';
+}
+
+/* 搜尋防抖 120ms */
+let _searchTimer = null;
+function handleSearch(val) {
+  clearTimeout(_searchTimer);
+  _searchTimer = setTimeout(() => { currentSearch = val; refreshList(); }, 120);
+}
+
+function clearSearch() {
+  currentSearch = '';
+  const inp = document.getElementById('search-input');
+  if (inp) inp.value = '';
+  refreshList();
+}
+
+/* 縣市切換：重設搜尋 + 觸發 loadEvents + 記憶 LocalStorage */
+function switchCity(el, city) {
+  document.querySelectorAll('#city-bar .ftag').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  currentCity   = city;
+  currentSearch = '';
+  const inp = document.getElementById('search-input');
+  if (inp) inp.value = '';
+  try { localStorage.setItem(CITY_LS_KEY, city); } catch(e) {}
+  /* 地圖飛到縣市中心 */
+  const CC = {
+    '台北':[25.0478,121.5319],'新北':[25.0169,121.4627],
+    '桃園':[24.9936,121.3010],'台中':[24.1477,120.6736],
+    '台南':[22.9908,120.2133],'高雄':[22.6273,120.3014],
+    '宜蘭':[24.7569,121.7538],'花蓮':[23.9871,121.6069],
+  };
+  if (leafletMap) {
+    leafletMap.flyTo(city==='all' ? [23.6978,120.9605] : (CC[city]||[23.6978,120.9605]),
+                     city==='all'?8:13, {duration:1.2});
+  }
+  _switchCityLoad(city);   /* 有全量快取則前端過濾，否則觸發 loadEvents */
+}
+
+/* 類型篩選 */
+function applyFilter(el, key) {
+  document.querySelectorAll('#filter-bar .ftag').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  currentFilter = key;
+  refreshList();
+}
+
+/* CP 值計算 */
+function cpScore(ev) {
+  let s = 0;
+  if (ev.is_free)   s += 3;
+  if (ev.is_indoor) s += 1;
+  if (ev.filter.includes('market') || ev.filter.includes('art')) s += 1;
+  return s;
+}
+
+/* ════════════════════════════════════════
+   圖片懶加載（Intersection Observer）
+════════════════════════════════════════ */
+const _lazyObs = new IntersectionObserver((entries, obs) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const img = entry.target;
+    if (img.dataset.src) {
+      img.src = img.dataset.src;
+      img.removeAttribute('data-src');
+    }
+    obs.unobserve(img);
+  });
+}, { rootMargin: '200px' });
+
+function lazyImg(src, alt = '', cls = '') {
+  if (!src) return '';
+  return `<img
+    src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'/%3E"
+    data-src="${src}" alt="${alt}" class="${cls}"
+    style="background:#F1EFE8;opacity:0;transition:opacity .3s"
+    onload="this.style.opacity=1">`;
+}
+
+function attachLazyObservers() {
+  document.querySelectorAll('img[data-src]').forEach(img => _lazyObs.observe(img));
+}
+
+/* 渲染活動列表 */
+function renderList(evs) {
+  const list  = document.getElementById('ev-list');
+  const empty = document.getElementById('empty-state');
+  list.innerHTML = '';
+  if (evs.length === 0) {
+    list.style.display  = 'none';
+    empty.style.display = 'flex';
+    return;
+  }
+  list.style.display  = 'flex';
+  empty.style.display = 'none';
+  evs.forEach((ev, i) => {
+    const isHighCp = cpScore(ev) >= 4;
+    const row = document.createElement('div');
+    row.className = 'ev-row';
+    row.style.animationDelay = (i * 0.06) + 's';
+    row.onclick = () => openDetail(ev.id);
+    row.innerHTML = `
+      <div class="ev-bar" style="background:${ev.bar}"></div>
+      <div class="ev-info">
+        <div class="ev-city">${ev.city}</div>
+        <div class="ev-name">${ev.name}</div>
+        <div class="ev-meta">${ev.time}</div>
+        <div class="ev-tags">
+          ${ev.tags.map(t=>`<span class="ev-tag" style="background:${t.bg};color:${t.c};font-weight:700">${t.t}</span>`).join('')}
+          ${isHighCp?'<span class="cp-badge">高 CP 值</span>':''}
+        </div>
+      </div>
+      <div class="ev-right">
+        <div class="ev-arrow">›</div>
+      </div>
+      <button onclick="event.stopPropagation();addToBudget('${ev.id}')" style="flex-shrink:0;align-self:center;background:#FFF1A8;border:1.5px solid #E8D060;border-radius:14px;padding:5px 9px;font-size:11px;font-weight:700;color:#633806;cursor:pointer;font-family:inherit;white-space:nowrap">+ 加入</button>`;
+    list.appendChild(row);
+  });
+  attachLazyObservers();
+}
+
+
+/* ════════════════════════════════════════
+   Gacha 流程（心理測驗 → 刮刮卡 → 結果）
+════════════════════════════════════════ */
+let gachaTheme = '';
+let scratched  = false;
+let wentOut    = false;
+let cdTimer    = null;
+let cdSecs     = 3 * 86400 + 14 * 3600 + 22 * 60 + 47;
+
+function setDots(n) {
+  document.querySelectorAll('.step-dot').forEach((d,i) => d.classList.toggle('on', i===n));
+}
+function pad2(n) { return String(n).padStart(2,'0'); }
+
+function startCountdown() {
+  if (cdTimer) return;
+  cdTimer = setInterval(() => {
+    if (cdSecs <= 0) { clearInterval(cdTimer); return; }
+    cdSecs--;
+    const d=Math.floor(cdSecs/86400), r=cdSecs%86400;
+    const h=Math.floor(r/3600), m=Math.floor((r%3600)/60), s=r%60;
+    ['cd-d','cd-h','cd-m','cd-s'].forEach((id,i) => {
+      const el=document.getElementById(id), v=pad2([d,h,m,s][i]);
+      if (el && el.textContent!==v) { el.textContent=v; el.classList.remove('ticking'); void el.offsetWidth; el.classList.add('ticking'); }
+    });
+  }, 1000);
+}
+
+function pickTheme(theme) {
+  gachaTheme = theme;
+  document.getElementById('step-quiz').style.display  = 'none';
+  document.getElementById('step-gacha').style.display = 'flex';
+  setDots(1);
+  startCountdown();
+}
+
+function doScratch() {
+  if (scratched) return;
+  scratched = true;
+  const box = document.getElementById('gacha-box');
+  const cta = document.getElementById('gacha-cta');
+  box.style.animation = 'bb-shake .5s ease';
+  cta.disabled = true; cta.textContent = '刮開中...';
+  setTimeout(() => {
+    const mask = document.getElementById('scratch-mask');
+    if (mask) mask.classList.add('gone');
+    const lbl  = document.getElementById('gacha-box-label');
+    if (lbl)  lbl.textContent = '行程揭曉！';
+    spawnConfetti(20);
+  }, 300);
+  setTimeout(() => { showResult(); setDots(2); spawnConfetti(28); }, 1000);
+}
+
+function showResult() {
+  document.getElementById('step-gacha').style.display = 'none';
+  document.getElementById('step-result').style.display = 'flex';
+  const data = ITINERARIES[gachaTheme] || ITINERARIES['文青放鬆'];
+  document.getElementById('result-header').style.background = data.headerColor;
+  document.getElementById('r-tag').textContent  = data.tag;
+  document.getElementById('r-title').innerHTML  = data.title.replace('\n','<br>');
+  document.getElementById('r-sub').textContent  = data.sub;
+  document.getElementById('r-stats').innerHTML  = data.stats.map(s=>`<div class="stat-chip"><div class="stat-num">${s.num}</div><div class="stat-lbl">${s.lbl}</div></div>`).join('');
+  document.getElementById('r-stops').innerHTML  = data.stops.map((s,i)=>`${i>0?'<div class="stop-connector"></div>':''}<div class="stop-row"><div class="stop-circle">${i+1}</div><div><div class="stop-name">${s.t} · ${s.n}</div><div class="stop-meta">${s.m}</div></div></div>`).join('');
+  document.getElementById('r-pills').innerHTML  = data.pills.map(p=>`<span class="pill ${p.c}">${p.t}</span>`).join('');
+}
+
+function handleGo() {
+  if (wentOut) return;
+  wentOut = true;
+  const btn = document.getElementById('r-go-btn');
+  btn.textContent = 'BearBear 超開心！出發囉～';
+  btn.style.background = '#B2EBF2';
+  btn.style.color = '#085041';
+  spawnConfetti(24);
+  saveBadge();
+  const badge = document.getElementById('badge-reveal');
+  badge.style.animation = 'none'; void badge.offsetWidth; badge.style.animation = '';
+}
+
+function restartGacha() {
+  scratched = false; wentOut = false; gachaTheme = '';
+  clearInterval(cdTimer); cdTimer = null;
+  const mask = document.getElementById('scratch-mask');
+  if (mask) mask.classList.remove('gone');
+  const lbl = document.getElementById('gacha-box-label');
+  if (lbl) lbl.textContent = '神秘行程\n等待揭曉！';
+  const box = document.getElementById('gacha-box');
+  if (box) box.style.animation = '';
+  const cta = document.getElementById('gacha-cta');
+  if (cta) { cta.disabled=false; cta.textContent='刮開 BearBear 盲盒！'; }
+  document.getElementById('step-result').style.display = 'none';
+  document.getElementById('step-gacha').style.display  = 'none';
+  document.getElementById('step-quiz').style.display   = 'flex';
+  setDots(0);
+  /* 重設預算 */
+  budgetItems = [];
+  renderBudget();
+}
+
+function spawnConfetti(count) {
+  const wrap = document.getElementById('confetti-wrap');
+  if (!wrap) return;
+  const colors=['#FFB7B2','#B1D8F3','#FFF1A8','#B2EBF2','#F4C0D1','#FAC775'];
+  for (let i=0;i<count;i++) {
+    const el=document.createElement('div'); el.className='cf';
+    const sz=7+Math.random()*6;
+    el.style.cssText=`left:${5+Math.random()*90}%;top:0;width:${sz}px;height:${sz}px;background:${colors[i%colors.length]};border-radius:${Math.random()>.5?'50%':'2px'};animation-delay:${Math.random()*.5}s;animation-duration:${.85+Math.random()*.65}s`;
+    wrap.appendChild(el);
+  }
+  setTimeout(()=>{ wrap.innerHTML=''; },1800);
+}
+
+/* ════════════════════════════════════════
+   ★ 模組 1：IG 限動分享圖生成器
+   依賴：html2canvas（<head> 中已引入 CDN）
+════════════════════════════════════════ */
+async function shareToIG() {
+  const btn = document.getElementById('share-ig-btn');
+  if (!btn) return;
+  const origText = btn.textContent;
+  btn.textContent = '生成中...';
+  btn.disabled = true;
+
+  try {
+    /* 截圖目標：result-card */
+    const card = document.getElementById('share-capture-zone');
+    if (!card) throw new Error('找不到截圖區塊');
+
+    const canvas = await html2canvas(card, {
+      scale          : 3,          /* 3x 高解析度 */
+      useCORS        : true,
+      backgroundColor: '#FFF8F5',
+      logging        : false,
+      /* 避免 Leaflet 地圖圖層干擾 */
+      ignoreElements : el => el.id === 'leaflet-map',
+    });
+
+    /* 建立 9:16 畫布（填充到 IG 限動比例） */
+    const targetW = canvas.width;
+    const targetH = Math.round(targetW * 16 / 9);
+    const out = document.createElement('canvas');
+    out.width  = targetW;
+    out.height = targetH;
+    const ctx  = out.getContext('2d');
+
+    /* 背景 */
+    ctx.fillStyle = '#FFF8F5';
+    ctx.fillRect(0, 0, targetW, targetH);
+
+    /* 置中貼上卡片截圖 */
+    const cardH = Math.min(canvas.height, targetH - 80);
+    const yOff  = Math.round((targetH - cardH) / 2);
+    ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height,
+                  0, yOff, targetW, cardH);
+
+    /* 底部 BearBear 浮水印文字 */
+    ctx.fillStyle = 'rgba(176,128,112,0.7)';
+    ctx.font      = `bold ${Math.round(targetW * 0.04)}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText('BearBear 週末去哪玩', targetW/2, targetH - Math.round(targetW*0.04));
+
+    /* 下載 */
+    const link  = document.createElement('a');
+    link.download = `bearbear-trip-${Date.now()}.png`;
+    link.href   = out.toDataURL('image/png');
+    link.click();
+
+    btn.textContent = '✓ 圖片已下載！';
+    setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 2500);
+
+  } catch(err) {
+    console.error('[Share]', err.message);
+    btn.textContent = '截圖失敗，請重試';
+    setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 2000);
+  }
+}
+
+/* ════════════════════════════════════════
+   ★ 模組 2：行程預算 & CP 值計算機
+════════════════════════════════════════ */
+let budgetItems = [];   /* [{ name, cost }] */
+
+/* 從 cost_est 字串解析數值（取第一個數字，免費=0） */
+function parseCost(costStr='') {
+  if (!costStr || /免費|0元|NT\$0/i.test(costStr)) return 0;
+  const m = costStr.match(/[\d,]+/);
+  return m ? parseInt(m[0].replace(/,/g,''), 10) : 0;
+}
+
+function cpLabel(total) {
+  if (total === 0)         return { text:'CP 值極高 ★★★', color:'#1A7A3C', bg:'#E1F5EE' };
+  if (total < 300)         return { text:'CP 值很高 ★★☆', color:'#185FA5', bg:'#E6F1FB' };
+  if (total < 800)         return { text:'CP 值普通 ★☆☆', color:'#854F0B', bg:'#FAEEDA' };
+  if (total < 2000)        return { text:'小小奢華 💎',    color:'#993556', bg:'#FBEAF0' };
+  return                          { text:'奢華享受 👑',    color:'#712B13', bg:'#FAECE7' };
+}
+
+function renderBudget() {
+  const bar   = document.getElementById('budget-bar');
+  if (!bar) return;  /* budget-bar only exists on radar tab */
+  const total = budgetItems.reduce((s,i) => s+i.cost, 0);
+  const cp    = cpLabel(total);
+  const count = budgetItems.length;
+
+  bar.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <div style="font-size:13px;font-weight:800;color:#0D0704">
+        行程預算 ${count > 0 ? `(${count} 項)` : ''}
+      </div>
+      <div style="font-size:16px;font-weight:800;color:#0D0704">
+        ${total === 0 ? '免費！' : 'NT$' + total.toLocaleString()}
+      </div>
+      ${count > 0 ? `<span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${cp.bg};color:${cp.color}">${cp.text}</span>` : '<span style="font-size:11px;color:#4A2C1A">← 點活動卡片加入行程</span>'}
+      ${count > 0 ? `<button onclick="budgetItems=[];renderBudget()" style="margin-left:auto;font-size:11px;background:none;border:none;color:#4A2C1A;cursor:pointer;text-decoration:underline">清除</button>` : ''}
+    </div>
+    ${count > 0 ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+      ${budgetItems.map((it,i)=>`<span style="font-size:11px;background:#F1EFE8;border-radius:20px;padding:3px 9px;color:#4A2C1A;display:flex;align-items:center;gap:4px">
+        ${it.name.slice(0,8)} ${it.cost===0?'免費':'NT$'+it.cost}
+        <span onclick="budgetItems.splice(${i},1);renderBudget()" style="cursor:pointer;color:#993C1D;font-weight:700">×</span>
+      </span>`).join('')}
+    </div>` : ''}`;
+}
+
+/* 從詳情頁或列表加入預算 */
+function addToBudget(evId) {
+  const ev = EVENTS.find(e => e.id === evId) || FALLBACK_EVENTS.find(e => e.id === evId);
+  if (!ev) return;
+  /* 避免重複加入 */
+  if (budgetItems.find(i => i.id === evId)) {
+    alert(`「${ev.name}」已在預算清單中`);
+    return;
+  }
+  budgetItems.push({ id:evId, name:ev.name, cost:parseCost(ev.cost_est) });
+  renderBudget();
+  /* 短暫閃爍 budget bar */
+  const bar = document.getElementById('budget-bar');
+  bar.style.outline = '2px solid #FFB7B2';
+  setTimeout(() => { bar.style.outline = 'none'; }, 600);
+}
+
+/* 詳情頁「加入行程」按鈕也同時加入預算 */
+function addToTrip() {
+  const btn = document.querySelector('#detail-overlay .cta-main');
+  if (!btn) return;
+  btn.textContent = '✓ 已加入行程！';
+  btn.style.background = '#B2EBF2';
+  btn.style.color = '#085041';
+  if (currentDetailId) addToBudget(currentDetailId);
+}
+
+/* ════════════════════════════════════════
+   Tab 切換
+════════════════════════════════════════ */
+function switchTab(tab) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('view-' + tab).classList.add('active');
+}
+
+/* ════════════════════════════════════════
+   LocalStorage 徽章記憶
+════════════════════════════════════════ */
+const BADGE_KEY = 'bb_badge_taoyuan_v1';
+function saveBadge() {
+  try { localStorage.setItem(BADGE_KEY, '1'); } catch(e) {}
+}
+function hasBadge() {
+  try { return localStorage.getItem(BADGE_KEY) === '1'; } catch(e) { return false; }
+}
+function applyBadgeState() {
+  if (!hasBadge()) return;
+  const badge = document.getElementById('badge-reveal');
+  if (!badge) return;
+  badge.style.animation = 'none';
+  badge.style.opacity   = '1';
+  badge.style.transform = 'scale(1)';
+}
+
+/* ════════════════════════════════════════
+   一鍵導航
+════════════════════════════════════════ */
+let currentDetailId = null;
+
+function openNavigation() {
+  const allEvs = (_allEventsCache || window._allEventsCache || []).concat(FALLBACK_EVENTS);
+  const ev = allEvs.find(e => e.id === currentDetailId);
+  if (!ev || !ev.lat) { alert('此活動無座標資料'); return; }
+  const { lat, lng, name } = ev;
+  const label = encodeURIComponent(name);
+  const isIOS     = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  let url;
+  if (isIOS)          url = `maps://maps.apple.com/?q=${label}&ll=${lat},${lng}&z=16`;
+  else if (isAndroid) url = `geo:${lat},${lng}?q=${lat},${lng}(${label})`;
+  else                url = `https://maps.google.com/?q=${lat},${lng}`;
+  window.open(url, '_blank');
+}
+
+/* ════════════════════════════════════════
+   Leaflet 地圖初始化
+════════════════════════════════════════ */
+let leafletMap  = null;
+let userLatLng  = [24.9936, 121.3010]; // 預設桃園
+
+function initMap(center) {
+  if (leafletMap) { leafletMap.remove(); leafletMap = null; }
+  leafletMap = L.map('leaflet-map', { center, zoom: 13, zoomControl: true });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>'
+  }).addTo(leafletMap);
+  L.circleMarker(center, {
+    radius: 8, color: '#378ADD', fillColor: '#378ADD',
+    fillOpacity: 1, weight: 3
+  }).addTo(leafletMap).bindPopup('📍 你在這裡');
+  renderLeafletPins(EVENTS);
+}
+
+function renderLeafletPins(evs) {
+  if (!leafletMap) return;
+  leafletMap.eachLayer(layer => {
+    if (layer._isBearPin) leafletMap.removeLayer(layer);
+  });
+  evs.forEach(ev => {
+    if (!ev.lat || !ev.lng) return;
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="display:flex;flex-direction:column;align-items:center;cursor:pointer">
+        <div style="width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:${ev.pin};border:2.5px solid white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.2)">
+          <span style="transform:rotate(45deg);font-size:12px">${ev.pin_emoji}</span>
+        </div>
+        <div style="font-size:10px;font-weight:600;background:white;border:1px solid #F4C8C0;border-radius:8px;padding:2px 6px;margin-top:2px;color:#0D0704;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.1)">${ev.name.slice(0,7)}…</div>
+      </div>`,
+      iconSize: [90, 52], iconAnchor: [45, 40], popupAnchor: [0, -42],
+    });
+    const marker = L.marker([ev.lat, ev.lng], { icon })
+      .addTo(leafletMap)
+      .on('click', () => openDetail(ev.id));
+    marker._isBearPin = true;
+  });
+}
+
+/* switchCity 快速前端過濾 */
+async function _switchCityLoad(city) {
+  const cache = window._allEventsCache;
+  if (cache) {
+    EVENTS = city === 'all' ? cache : cache.filter(e => e.city === city);
+    refreshList(); renderLeafletPins(EVENTS);
+  } else {
+    await loadEvents(city);
+  }
+}
+
+/* ════════════════════════════════════════
+   活動詳情抽屜
+════════════════════════════════════════ */
+function openDetail(id) {
+  const allEvs = (window._allEventsCache || []).concat(FALLBACK_EVENTS);
+  const ev = allEvs.find(e => e.id === id);
+  if (!ev) return;
+  currentDetailId = id;
+
+  document.getElementById('d-hero').style.background = ev.hero_color || '#185FA5';
+  document.getElementById('d-tag').textContent        = ev.dtag || '';
+  document.getElementById('d-title').innerHTML        = (ev.dtitle || ev.name).replace('\n','<br>');
+
+  document.getElementById('d-grid').innerHTML = (ev.grid||[]).map(g => `
+    <div class="info-cell">
+      <div class="info-icon">${g.icon}</div>
+      <div class="info-lbl">${g.lbl}</div>
+      <div class="info-val">${g.val}</div>
+    </div>`).join('');
+
+  document.getElementById('d-pain').innerHTML =
+    '<div class="pain-title">痛點資訊</div>' +
+    (ev.pain||[]).map(p => `
+      <div class="pain-row">
+        <div class="pain-icon-box" style="background:${p.bg}">${p.icon}</div>
+        <div class="pain-text">${p.txt}</div>
+      </div>`).join('');
+
+  document.getElementById('d-food').innerHTML = (ev.food||[]).map(f => `
+    <div class="food-chip">
+      <div class="food-chip-name">${f.name}</div>
+      <div class="food-chip-meta">${f.meta}</div>
+    </div>`).join('') || '<div style="font-size:12px;color:#4A2C1A;padding:4px 0">暫無周邊美食資料</div>';
+
+  const saveBtn = document.getElementById('d-save');
+  if (saveBtn) { saveBtn.textContent = '♡'; saveBtn.classList.remove('saved'); }
+
+  document.getElementById('detail-overlay').classList.add('open');
+}
+
+function closeDetail(event) {
+  if (event && event.target !== document.getElementById('detail-overlay')) return;
+  document.getElementById('detail-overlay').classList.remove('open');
+}
+
+function toggleSave(btn) {
+  const saved = btn.classList.toggle('saved');
+  btn.textContent = saved ? '♥' : '♡';
+}
+
+
+
+/* ════════════════════════════════════════
+   初始化
+════════════════════════════════════════ */
+(function init() {
+  /* ① 恢復上次瀏覽縣市 */
+  const savedCity = localStorage.getItem(CITY_LS_KEY) || 'all';
+  if (savedCity !== 'all') {
+    document.querySelectorAll('#city-bar .ftag').forEach(el => {
+      if (el.dataset.city === savedCity) {
+        document.querySelectorAll('#city-bar .ftag').forEach(t=>t.classList.remove('on'));
+        el.classList.add('on');
+        currentCity = savedCity;
+      }
+    });
+  }
+
+  /* ② 異步載入資料（Fallback 立即顯示，TDX 成功後替換） */
+  loadEvents(currentCity);
+
+  /* 初始化預算條 */
+  renderBudget();
+
+  /* ③ 初始化 Leaflet 地圖 */
+  initMap(userLatLng);
+
+  /* ③ 請求 Geolocation 權限，取得用戶真實位置 */
+  if ('geolocation' in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        userLatLng = [pos.coords.latitude, pos.coords.longitude];
+        /* 移動地圖中心到用戶位置並重建地圖（含新藍點） */
+        initMap(userLatLng);
+      },
+      _err => {
+        /* 用戶拒絕或取得失敗 → 繼續使用桃園預設值，靜默處理 */
+        console.info('[GEO] 無法取得位置，使用桃園預設座標');
+      },
+      { timeout: 8000, maximumAge: 60000 }
+    );
+  }
+
+  /* ④ 恢復已解鎖的徽章狀態 */
+  applyBadgeState();
+
+  /* ⑤ 處理 URL hash（PWA Shortcut 支援） */
+  if (location.hash === '#gacha') switchTab('gacha');
+
+  /* ⑥ ESC 關閉詳情抽屜 */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.getElementById('detail-overlay').classList.remove('open');
+  });
+})();
+
+/* ════════════════════════════════════════
+   PWA Service Worker 註冊
+════════════════════════════════════════ */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('./sw.js')
+      .then(reg => {
+        console.log('[PWA] Service Worker 已註冊，範圍：', reg.scope);
+        /* 偵測到新版本時提示用戶更新 */
+        reg.addEventListener('updatefound', () => {
+          const newSW = reg.installing;
+          newSW.addEventListener('statechange', () => {
+            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+              if (confirm('BearBear 有新版本！點確定立即更新 🐻')) {
+                newSW.postMessage({ type: 'SKIP_WAITING' });
+                location.reload();
+              }
+            }
+          });
+        });
+      })
+      .catch(err => console.warn('[PWA] SW 註冊失敗：', err));
+  });
+}
+</script>
+</body>
+</html>
