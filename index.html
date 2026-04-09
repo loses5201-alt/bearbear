@@ -1786,7 +1786,7 @@ const TAG_LABELS = {
   spring:'溫泉', hiking:'登山',
 };
 
-/* 從真實活動資料隨機抽取符合主題的活動 */
+/* 從真實活動資料隨機抽取符合主題的活動（跨回合不重複） */
 function generateTrip(theme) {
   const cfg = THEME_CONFIG[theme] || THEME_CONFIG['文青放鬆'];
   const src = _allEventsCache || [...FALLBACK_EVENTS];
@@ -1803,7 +1803,16 @@ function generateTrip(theme) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
-  return pool.slice(0, 4);
+
+  /* 優先取沒抽過的；若池子快用完則重設記憶 */
+  let fresh = pool.filter(ev => !_gachaUsedIds.has(ev.id));
+  if (fresh.length < 4) {
+    _gachaUsedIds.clear();   // 池子快用完，重置記憶重抽
+    fresh = pool;
+  }
+  const picked = fresh.slice(0, 4);
+  picked.forEach(ev => _gachaUsedIds.add(ev.id));
+  return picked;
 }
 
 /* ════════════════════════════════════════
@@ -2033,6 +2042,7 @@ function renderList(evs) {
 let gachaTheme = '';
 let scratched  = false;
 let wentOut    = false;
+let _gachaUsedIds = new Set();   /* 跨回合排除已抽過的活動 */
 let cdTimer    = null;
 let cdSecs     = 3 * 86400 + 14 * 3600 + 22 * 60 + 47;
 
