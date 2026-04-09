@@ -3,7 +3,7 @@
    策略：Cache First（靜態資源）+ Network First（API 資料）
    ============================================================ */
 
-const CACHE_NAME = 'bearbear-v1.0.0';
+const CACHE_NAME = 'bearbear-v1.2.0';
 const IMG_CACHE  = 'bearbear-img-v1';
 const IMG_MAX    = 120;
 const STATIC_ASSETS = [

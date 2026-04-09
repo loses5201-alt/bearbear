@@ -2250,7 +2250,9 @@ let currentSearch  = '';
 function getFiltered() {
   const q = currentSearch.trim().toLowerCase();
   const today = new Date(); today.setHours(0, 0, 0, 0);
-  return EVENTS.filter(ev => {
+  /* 永遠合併靜態溫泉/登山景點，不受 TDX 快取路徑影響 */
+  const source = _mergeStaticPOI(EVENTS);
+  return source.filter(ev => {
     /* 過期活動：結束日 < 今天，自動隱藏 */
     const endDate = getEventEndDate(ev);
     if (endDate && endDate < today) return false;
