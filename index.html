@@ -1424,7 +1424,11 @@ function transformTdxEvent(raw, index) {
   try {
   /* TDX 觀光活動 API 欄位對應 */
   const name  = raw.ActivityName || raw.Name || '未命名活動';
-  const city  = (raw.City || raw.CityName || '其他').replace('臺', '台');
+  const rawCity = raw.City || raw.CityName || '';
+  const city  = rawCity
+    .replace('臺', '台')
+    .replace(/市$|縣$/, '')   /* 去掉「市」「縣」後綴，與縣市標籤一致 */
+    || '其他';
   const addr  = raw.Address || raw.Location || '';
   const start = raw.StartTime ? raw.StartTime.slice(0,10) : '';
   const end   = raw.EndTime   ? raw.EndTime.slice(0,10)   : '';

@@ -252,8 +252,13 @@ async function main() {
   const endpoint = `${CONFIG.BASE_URL}/Tourism/Activity`;
   const allRaw   = [];
 
+  /* 今天日期（ISO 格式），用於過濾已結束的活動 */
+  const today = new Date().toISOString().slice(0, 10);
+  /* OData $filter：只抓 EndTime >= 今天，或沒有 EndTime 的常設活動 */
+  const dateFilter = encodeURIComponent(`EndTime ge ${today} or EndTime eq null`);
+
   /* 先抓第一批，確認總筆數 */
-  const firstUrl = `${endpoint}?$top=${CONFIG.BATCH_SIZE}&$skip=0&$format=JSON`;
+  const firstUrl = `${endpoint}?$filter=${dateFilter}&$top=${CONFIG.BATCH_SIZE}&$skip=0&$format=JSON`;
   let firstBatch;
   try {
     firstBatch = JSON.parse(await httpsGet(firstUrl, authHeader));
@@ -269,7 +274,7 @@ async function main() {
   /* 若第一批已達上限，繼續往後抓（最多抓 5000 筆） */
   if (firstArr.length === CONFIG.BATCH_SIZE) {
     for (let skip = CONFIG.BATCH_SIZE; skip < 5000; skip += CONFIG.BATCH_SIZE) {
-      const url = `${endpoint}?$top=${CONFIG.BATCH_SIZE}&$skip=${skip}&$format=JSON`;
+      const url = `${endpoint}?$filter=${dateFilter}&$top=${CONFIG.BATCH_SIZE}&$skip=${skip}&$format=JSON`;
       try {
         const batch = JSON.parse(await httpsGet(url, authHeader));
         const arr   = Array.isArray(batch) ? batch : (batch.value || []);
