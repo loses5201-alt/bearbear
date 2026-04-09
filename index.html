@@ -1342,7 +1342,7 @@ const TDX_CONFIG = {
   WORKER_URL  : 'https://your-worker.your-subdomain.workers.dev/tdx',
 
   /* 快取：靜態 JSON 模式下快取 6 小時（減少重複 fetch） */
-  CACHE_KEY    : 'bb_events_cache_v2',
+  CACHE_KEY    : 'bb_events_cache_v3',
   CACHE_TTL_MS : 6 * 60 * 60 * 1000,
 };
 
@@ -2034,6 +2034,15 @@ function transformTdxEvent(raw, index) {
    非同步資料載入層
 ════════════════════════════════════════ */
 
+/* 靜態景點（溫泉 & 登山）：永遠合併，不受 TDX 資料影響 */
+const STATIC_POI = FALLBACK_EVENTS.filter(e => /^(hk|sp)/.test(e.id));
+
+/* 將靜態景點合併進資料陣列（避免重複） */
+function _mergeStaticPOI(data) {
+  const ids = new Set(data.map(e => e.id));
+  return [...data, ...STATIC_POI.filter(e => !ids.has(e.id))];
+}
+
 /* 全域 EVENTS 陣列：初始用 Fallback，fetch 成功後替換 */
 let EVENTS = [...FALLBACK_EVENTS];
 
@@ -2058,10 +2067,11 @@ async function loadEvents(city = 'all') {
   try {
     const stored = JSON.parse(localStorage.getItem(TDX_CONFIG.CACHE_KEY) || 'null');
     if (stored && now - stored.ts < TDX_CONFIG.CACHE_TTL_MS && stored.data?.length > 0) {
-      _allEventsCache = stored.data;
+      const merged = _mergeStaticPOI(stored.data);
+      _allEventsCache = merged;
       _cacheLoadedAt  = stored.ts;
-      EVENTS = city === 'all' ? stored.data : stored.data.filter(e => e.city === city);
-      console.info(`[Cache] LocalStorage 命中，${stored.data.length} 筆`);
+      EVENTS = city === 'all' ? merged : merged.filter(e => e.city === city);
+      console.info(`[Cache] LocalStorage 命中，${stored.data.length} 筆（+${merged.length - stored.data.length} 靜態景點）`);
       refreshList();
       renderLeafletPins(EVENTS);
       return;
@@ -2116,16 +2126,17 @@ async function loadEvents(city = 'all') {
     }
 
     if (allData && allData.length > 0) {
-      /* 更新記憶體快取 */
-      _allEventsCache = allData;
+      /* 合併靜態溫泉 & 登山景點，更新記憶體快取 */
+      const merged = _mergeStaticPOI(allData);
+      _allEventsCache = merged;
       _cacheLoadedAt  = now;
-      /* 寫 LocalStorage 快取（容量超出靜默略過） */
+      /* 寫 LocalStorage 快取（只存 TDX 資料，靜態景點每次動態合併） */
       try {
         localStorage.setItem(TDX_CONFIG.CACHE_KEY,
           JSON.stringify({ ts: now, data: allData }));
       } catch(_) {}
 
-      EVENTS = city === 'all' ? allData : allData.filter(e => e.city === city);
+      EVENTS = city === 'all' ? merged : merged.filter(e => e.city === city);
     } else {
       throw new Error('API 回傳空陣列');
     }
