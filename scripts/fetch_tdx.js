@@ -137,6 +137,7 @@ function inferFilter(name = '', desc = '') {
   if (/夜市|美食|小吃|food|吃貨/.test(text))       parts.push('food');
   if (/室內|館內|indoor|地下/.test(text))           parts.push('indoor');
   if (/溫泉|泡湯|hot.spring/.test(text))           parts.push('spring');
+  if (/爬山|登山|健行|步道|百岳|山岳|山徑|登頂|縱走/.test(text)) parts.push('hiking');
   if (parts.length === 0) parts.push('art');  /* 預設歸展覽 */
   return parts.join(' ');
 }

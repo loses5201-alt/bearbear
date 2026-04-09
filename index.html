@@ -6,9 +6,9 @@
 <meta name="theme-color" content="#FFB7B2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="BearBear">
-<meta name="description" content="台灣在地活動整合 APP，跟 BearBear 一起探索週末好去處！">
-<title>BearBear 週末去哪玩</title>
+<meta name="apple-mobile-web-app-title" content="黑豆">
+<meta name="description" content="台灣在地活動整合 APP，跟 黑豆 一起探索週末好去處！">
+<title>黑豆 週末去哪玩</title>
 <link rel="manifest" href="manifest.json">
 <!-- Leaflet.js 地圖（免費開源，無需 API Key） -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -17,10 +17,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <!-- ============================================================
-     BearBear 週末去哪玩 — 完整 PWA SPA
+     黑豆 週末去哪玩 — 完整 PWA SPA
      架構：純前端 HTML/CSS/Vanilla JS
      頁面：① 找附近（LBS 雷達地圖 + 活動列表 + 詳情頁）
-           ② 抽行程（BearBear 心理測驗 → Gacha 盲盒 → 結果）
+           ② 抽行程（黑豆 心理測驗 → Gacha 盲盒 → 結果）
      ============================================================ -->
 
 <style>
@@ -185,7 +185,7 @@ body {
 .safe-bottom { height: var(--safe-bottom); }
 
 /* ════════════════════════════════════════
-   BearBear SVG 共用動畫
+   黑豆 SVG 共用動畫
 ════════════════════════════════════════ */
 @keyframes bb-float  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
 @keyframes bb-blink  { 0%,88%,100%{transform:scaleY(1)} 94%{transform:scaleY(0.05)} }
@@ -658,7 +658,7 @@ body {
 }
 .step-dot.on { background: var(--pk); width: 20px; border-radius: 4px; }
 
-/* BearBear 對話框 */
+/* 黑豆 對話框 */
 .bb-zone { display: flex; align-items: flex-end; gap: 12px; width: 100%; margin-bottom: 16px; }
 .bb-bubble {
   background: var(--card);
@@ -713,6 +713,7 @@ body {
 .choice-btn.yello  { background: var(--yw); border-color: var(--yw-d); color: #7A6000; animation-delay: .62s; }
 .choice-btn.purp   { background: #EDE8F9;   border-color: #B0A0E0;     color: #4A3A90; animation-delay: .79s; }
 .choice-btn.green  { background: #DFF1E8;   border-color: #8BC8A8;     color: #1E6648; animation-delay: .96s; }
+.choice-btn.earth  { background: #EEE8DA;   border-color: #A89070;     color: #5A3E1B; animation-delay: 1.13s; }
 .choice-icon { font-size: 30px; flex-shrink: 0; }
 .choice-title { font-size: 15px; font-weight: 500; }
 .choice-sub   { font-size: 11px; opacity: .65; margin-top: 2px; }
@@ -851,7 +852,7 @@ body {
 .pill-bl  { background: #E6F1FB;     color: #185FA5; }
 .pill-mn  { background: #E1F5EE;     color: #0F6E56; }
 
-/* 大拇指 BearBear（結果卡片角落） */
+/* 大拇指 黑豆（結果卡片角落） */
 .thumb-bear {
   position: absolute; bottom: -8px; right: 14px;
   width: 54px; height: 54px;
@@ -901,9 +902,9 @@ body {
   <div class="status-bar">
     <div class="brand-logo-wrap">
       <div class="brand-logo-title">周末去哪玩</div>
-      <div class="brand-logo-sub">BearBear 帶你發現台灣好去處</div>
+      <div class="brand-logo-sub">黑豆 帶你發現台灣好去處</div>
     </div>
-    <div class="brand-bear">🐻</div>
+    <div class="brand-bear">🫘</div>
   </div>
 
   <!-- ── 頂部導覽列 ── -->
@@ -969,6 +970,7 @@ body {
               <option value="market">🛍 週末市集</option>
               <option value="indoor">🏛 室內活動</option>
               <option value="spring">♨️ 溫泉</option>
+              <option value="hiking">🏔 爬山健行</option>
             </select>
           </div>
         </div>
@@ -1010,36 +1012,27 @@ body {
       <div id="empty-state" style="display:none;flex-direction:column;align-items:center;padding:32px 20px;gap:10px">
         <svg width="90" height="100" viewBox="0 0 90 105" style="overflow:visible">
           <g style="animation:bb-float 2.6s ease-in-out infinite;transform-origin:center bottom">
-            <ellipse cx="22" cy="30" rx="18" ry="16" fill="#3D2B1F"/>
-            <ellipse cx="68" cy="30" rx="18" ry="16" fill="#3D2B1F"/>
-            <ellipse cx="22" cy="30" rx="11" ry="10" fill="#4A3428"/>
-            <ellipse cx="68" cy="30" rx="11" ry="10" fill="#4A3428"/>
-            <ellipse cx="45" cy="74" rx="30" ry="28" fill="#3D2B1F"/>
-            <ellipse cx="45" cy="75" rx="26" ry="24" fill="#4A3428"/>
-            <ellipse cx="45" cy="80" rx="14" ry="12" fill="#6B4C3B"/>
-            <ellipse cx="30" cy="96" rx="10" ry="7" fill="#3D2B1F"/>
-            <ellipse cx="60" cy="96" rx="10" ry="7" fill="#3D2B1F"/>
-            <ellipse cx="45" cy="46" rx="32" ry="30" fill="#3D2B1F"/>
-            <ellipse cx="45" cy="47" rx="28" ry="26" fill="#4A3428"/>
-            <ellipse cx="45" cy="54" rx="11" ry="9" fill="#6B4C3B"/>
-            <!-- 哭哭眼睛 -->
-            <path d="M28 40 Q33 35 38 40" stroke="#1A1010" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-            <path d="M52 40 Q57 35 62 40" stroke="#1A1010" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-            <!-- 嘴巴 -->
-            <path d="M38 57 Q45 52 52 57" stroke="#2D1810" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <!-- 黑豆身體 -->
+            <ellipse cx="45" cy="62" rx="34" ry="40" fill="#1A1009"/>
+            <ellipse cx="45" cy="62" rx="30" ry="36" fill="#2D1A08"/>
+            <!-- 豆臍線 -->
+            <ellipse cx="45" cy="62" rx="11" ry="22" fill="none" stroke="#3D2810" stroke-width="2.5" opacity=".7"/>
+            <!-- 哭臉眼睛 -->
+            <path d="M30 50 Q35 46 40 50" stroke="#FFF" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+            <path d="M50 50 Q55 46 60 50" stroke="#FFF" stroke-width="2.2" fill="none" stroke-linecap="round"/>
             <!-- 眼淚 -->
-            <ellipse cx="30" cy="45" rx="3" ry="4" fill="#B1D8F3" opacity=".85"/>
-            <ellipse cx="60" cy="45" rx="3" ry="4" fill="#B1D8F3" opacity=".85"/>
-            <ellipse cx="23" cy="50" rx="7" ry="4" fill="#FFB7B2" opacity=".7"/>
-            <ellipse cx="67" cy="50" rx="7" ry="4" fill="#FFB7B2" opacity=".7"/>
-            <ellipse cx="45" cy="21" rx="26" ry="8" fill="#C4956A"/>
-            <path d="M21 21 Q45 6 69 21" fill="#D4A870"/>
-            <ellipse cx="45" cy="21" rx="26" ry="8" fill="#C4956A"/>
-            <rect x="40" y="5" width="10" height="18" rx="4" fill="#8B5E3C"/>
-            <ellipse cx="45" cy="5" rx="7" ry="3.5" fill="#A0714F"/>
+            <ellipse cx="32" cy="55" rx="2.5" ry="3.5" fill="#B1D8F3" opacity=".9"/>
+            <ellipse cx="58" cy="55" rx="2.5" ry="3.5" fill="#B1D8F3" opacity=".9"/>
+            <ellipse cx="28" cy="60" rx="6" ry="3" fill="#B1D8F3" opacity=".5"/>
+            <ellipse cx="62" cy="60" rx="6" ry="3" fill="#B1D8F3" opacity=".5"/>
+            <!-- 嘴巴（難過） -->
+            <path d="M37 65 Q45 60 53 65" stroke="#FFF" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <!-- 腮紅 -->
+            <ellipse cx="27" cy="58" rx="7" ry="4" fill="#FF9AA0" opacity=".5"/>
+            <ellipse cx="63" cy="58" rx="7" ry="4" fill="#FF9AA0" opacity=".5"/>
           </g>
         </svg>
-        <div style="font-size:15px;font-weight:700;color:var(--txt)">BearBear 找不到欸…</div>
+        <div style="font-size:15px;font-weight:700;color:var(--txt)">黑豆 找不到欸…</div>
         <div style="font-size:13px;color:var(--sub);text-align:center;line-height:1.6">換個關鍵字試試看？<br>或點上面的縣市標籤切換地區</div>
         <button onclick="clearSearch()" style="margin-top:4px;background:var(--pk);border:none;border-radius:20px;padding:8px 22px;color:white;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">清除搜尋</button>
       </div>
@@ -1065,44 +1058,29 @@ body {
         <!-- Step 0: 心理測驗 -->
         <div id="step-quiz" style="width:100%;display:flex;flex-direction:column;gap:12px">
           <div class="bb-zone">
-            <!-- BearBear 小版（對話框旁） -->
+            <!-- 黑豆 小版（對話框旁） -->
             <svg width="80" height="94" viewBox="0 0 90 105" style="flex-shrink:0;overflow:visible">
               <g class="bb-body">
-                <ellipse cx="22" cy="30" rx="18" ry="16" fill="#3D2B1F"/>
-                <ellipse cx="68" cy="30" rx="18" ry="16" fill="#3D2B1F"/>
-                <ellipse cx="22" cy="30" rx="11" ry="10" fill="#4A3428"/>
-                <ellipse cx="68" cy="30" rx="11" ry="10" fill="#4A3428"/>
-                <ellipse cx="45" cy="74" rx="30" ry="28" fill="#3D2B1F"/>
-                <ellipse cx="45" cy="75" rx="26" ry="24" fill="#4A3428"/>
-                <ellipse cx="45" cy="80" rx="14" ry="12" fill="#6B4C3B"/>
-                <ellipse cx="30" cy="96" rx="10" ry="7" fill="#3D2B1F"/>
-                <ellipse cx="60" cy="96" rx="10" ry="7" fill="#3D2B1F"/>
-                <ellipse cx="45" cy="46" rx="32" ry="30" fill="#3D2B1F"/>
-                <ellipse cx="45" cy="47" rx="28" ry="26" fill="#4A3428"/>
-                <ellipse cx="45" cy="54" rx="11" ry="9" fill="#6B4C3B"/>
-                <ellipse cx="45" cy="52" rx="5" ry="3.5" fill="#2D1810"/>
-                <path d="M38 57 Q45 63 52 57" stroke="#2D1810" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-                <g class="bb-eye-l" style="transform:translate(30px,42px)">
-                  <ellipse cx="0" cy="0" rx="7" ry="7" fill="#1A1010"/>
-                  <ellipse cx="2.5" cy="-2.5" rx="2.5" ry="2.5" fill="white"/>
-                </g>
-                <g class="bb-eye-r" style="transform:translate(60px,42px)">
-                  <ellipse cx="0" cy="0" rx="7" ry="7" fill="#1A1010"/>
-                  <ellipse cx="2.5" cy="-2.5" rx="2.5" ry="2.5" fill="white"/>
-                </g>
-                <ellipse cx="23" cy="50" rx="7" ry="4" fill="#FFB7B2" opacity=".7"/>
-                <ellipse cx="67" cy="50" rx="7" ry="4" fill="#FFB7B2" opacity=".7"/>
-                <!-- 草帽 -->
-                <ellipse cx="45" cy="21" rx="26" ry="8" fill="#C4956A"/>
-                <path d="M21 21 Q45 6 69 21" fill="#D4A870"/>
-                <ellipse cx="45" cy="21" rx="26" ry="8" fill="#C4956A"/>
-                <rect x="40" y="5" width="10" height="18" rx="4" fill="#8B5E3C"/>
-                <ellipse cx="45" cy="5" rx="7" ry="3.5" fill="#A0714F"/>
+                <!-- 黑豆身體 -->
+                <ellipse cx="45" cy="62" rx="34" ry="40" fill="#1A1009"/>
+                <ellipse cx="45" cy="62" rx="30" ry="36" fill="#2D1A08"/>
+                <!-- 豆臍線 -->
+                <ellipse cx="45" cy="62" rx="11" ry="22" fill="none" stroke="#3D2810" stroke-width="2.5" opacity=".7"/>
+                <!-- 眼睛 -->
+                <ellipse cx="35" cy="50" rx="5.5" ry="5.5" fill="#FFF"/>
+                <ellipse cx="55" cy="50" rx="5.5" ry="5.5" fill="#FFF"/>
+                <g class="bb-eye-l"><ellipse cx="35" cy="50" rx="3" ry="3" fill="#060200"/><ellipse cx="33.8" cy="48.8" rx="1.2" ry="1.2" fill="#FFF"/></g>
+                <g class="bb-eye-r"><ellipse cx="55" cy="50" rx="3" ry="3" fill="#060200"/><ellipse cx="53.8" cy="48.8" rx="1.2" ry="1.2" fill="#FFF"/></g>
+                <!-- 腮紅 -->
+                <ellipse cx="26" cy="57" rx="7" ry="4" fill="#FF9AA0" opacity=".5"/>
+                <ellipse cx="64" cy="57" rx="7" ry="4" fill="#FF9AA0" opacity=".5"/>
+                <!-- 笑容 -->
+                <path d="M36 58 Q45 68 54 58" stroke="#FFF" stroke-width="2" fill="none" stroke-linecap="round"/>
               </g>
             </svg>
             <div class="bb-bubble">
-              BearBear 今天要去冒險了！你希望我們今天的行程主題是...？
-              <div class="bb-bubble-sub">選一個，讓熊熊幫你抽 <span class="sp sp-1">✦</span><span class="sp sp-2">✦</span><span class="sp sp-3">✦</span></div>
+              黑豆 今天要去冒險了！你希望我們今天的行程主題是...？
+              <div class="bb-bubble-sub">選一個，讓黑豆幫你抽 <span class="sp sp-1">✦</span><span class="sp sp-2">✦</span><span class="sp sp-3">✦</span></div>
             </div>
           </div>
           <button class="choice-btn mint" onclick="pickTheme('文青放鬆')">
@@ -1121,12 +1099,16 @@ body {
             <div class="choice-icon">🌿</div>
             <div><div class="choice-title">戶外冒險</div><div class="choice-sub">市集活動，走出去動一動</div></div>
           </button>
+          <button class="choice-btn earth" onclick="pickTheme('爬山健行')">
+            <div class="choice-icon">🏔</div>
+            <div><div class="choice-title">爬山健行</div><div class="choice-sub">步道百岳，挑戰山頂美景</div></div>
+          </button>
         </div>
 
         <!-- Step 1: 刮刮卡盲盒 -->
         <div id="step-gacha" style="width:100%;display:none;flex-direction:column;align-items:center;gap:12px">
           <div class="gacha-label-top">
-            BearBear 正幫你挑選最完美的行程！<br>
+            黑豆 正幫你挑選最完美的行程！<br>
             <span style="font-size:11px">活動剩餘時間 <span class="sp sp-1">✦</span><span class="sp sp-2">✦</span><span class="sp sp-3">✦</span></span>
           </div>
           <div class="cd-row">
@@ -1141,42 +1123,32 @@ body {
           <!-- 盲盒 -->
           <div class="gacha-box" id="gacha-box">
             <div class="gacha-box-shine"></div>
-            <!-- 問號 BearBear -->
+            <!-- 問號 黑豆 -->
             <svg width="70" height="80" viewBox="0 0 90 105" style="position:relative;z-index:1;overflow:visible">
               <g class="bb-body">
-                <ellipse cx="22" cy="30" rx="18" ry="16" fill="#3D2B1F"/>
-                <ellipse cx="68" cy="30" rx="18" ry="16" fill="#3D2B1F"/>
-                <ellipse cx="22" cy="30" rx="11" ry="10" fill="#4A3428"/>
-                <ellipse cx="68" cy="30" rx="11" ry="10" fill="#4A3428"/>
-                <ellipse cx="45" cy="74" rx="30" ry="28" fill="#3D2B1F"/>
-                <ellipse cx="45" cy="75" rx="26" ry="24" fill="#4A3428"/>
-                <ellipse cx="45" cy="80" rx="14" ry="12" fill="#6B4C3B"/>
-                <ellipse cx="30" cy="96" rx="10" ry="7" fill="#3D2B1F"/>
-                <ellipse cx="60" cy="96" rx="10" ry="7" fill="#3D2B1F"/>
-                <ellipse cx="45" cy="46" rx="32" ry="30" fill="#3D2B1F"/>
-                <ellipse cx="45" cy="47" rx="28" ry="26" fill="#4A3428"/>
-                <ellipse cx="45" cy="54" rx="11" ry="9" fill="#6B4C3B"/>
-                <text x="45" y="58" text-anchor="middle" style="font-size:16px;fill:rgba(255,255,255,.9);font-weight:500">?</text>
-                <g class="bb-eye-l" style="transform:translate(30px,42px)"><ellipse cx="0" cy="0" rx="7" ry="7" fill="#1A1010"/><ellipse cx="2.5" cy="-2.5" rx="2.5" ry="2.5" fill="white"/></g>
-                <g class="bb-eye-r" style="transform:translate(60px,42px)"><ellipse cx="0" cy="0" rx="7" ry="7" fill="#1A1010"/><ellipse cx="2.5" cy="-2.5" rx="2.5" ry="2.5" fill="white"/></g>
-                <ellipse cx="23" cy="50" rx="7" ry="4" fill="#FFB7B2" opacity=".7"/>
-                <ellipse cx="67" cy="50" rx="7" ry="4" fill="#FFB7B2" opacity=".7"/>
-                <ellipse cx="45" cy="21" rx="26" ry="8" fill="#C4956A"/>
-                <path d="M21 21 Q45 6 69 21" fill="#D4A870"/>
-                <ellipse cx="45" cy="21" rx="26" ry="8" fill="#C4956A"/>
-                <rect x="40" y="5" width="10" height="18" rx="4" fill="#8B5E3C"/>
-                <ellipse cx="45" cy="5" rx="7" ry="3.5" fill="#A0714F"/>
+                <!-- 黑豆身體 -->
+                <ellipse cx="45" cy="62" rx="34" ry="40" fill="#1A1009"/>
+                <ellipse cx="45" cy="62" rx="30" ry="36" fill="#2D1A08"/>
+                <!-- 豆臍線 -->
+                <ellipse cx="45" cy="62" rx="11" ry="22" fill="none" stroke="#3D2810" stroke-width="2.5" opacity=".7"/>
+                <!-- 眼睛（驚訝大眼） -->
+                <ellipse cx="35" cy="50" rx="6" ry="6" fill="#FFF"/>
+                <ellipse cx="55" cy="50" rx="6" ry="6" fill="#FFF"/>
+                <ellipse cx="35" cy="50" rx="3.2" ry="3.2" fill="#060200"/>
+                <ellipse cx="55" cy="50" rx="3.2" ry="3.2" fill="#060200"/>
+                <!-- 問號 -->
+                <text x="45" y="76" text-anchor="middle" style="font-size:18px;fill:rgba(255,255,255,.9);font-weight:700">?</text>
               </g>
             </svg>
             <div class="gacha-box-label" id="gacha-box-label">神秘行程<br>等待揭曉！</div>
             <!-- 刮刮卡遮罩 -->
             <div class="scratch-mask" id="scratch-mask">
-              <div class="scratch-mask-txt">用力刮開<br>BearBear！</div>
+              <div class="scratch-mask-txt">用力刮開<br>黑豆！</div>
             </div>
           </div>
           <button class="gacha-cta" id="gacha-cta" onclick="doScratch()">
             <div class="gacha-cta-shine"></div>
-            刮開 BearBear 盲盒！
+            刮開 黑豆 盲盒！
           </button>
         </div>
 
@@ -1186,28 +1158,31 @@ body {
           <div class="result-card">
             <div class="result-header" id="result-header">
               <div class="result-header-shine"></div>
-              <!-- 大拇指 BearBear -->
+              <!-- 開心黑豆 -->
               <svg class="thumb-bear" viewBox="0 0 72 80">
                 <g class="bb-body">
-                  <ellipse cx="14" cy="24" rx="12" ry="10" fill="#3D2B1F"/>
-                  <ellipse cx="58" cy="24" rx="12" ry="10" fill="#3D2B1F"/>
-                  <ellipse cx="14" cy="24" rx="7" ry="6" fill="#4A3428"/>
-                  <ellipse cx="58" cy="24" rx="7" ry="6" fill="#4A3428"/>
-                  <ellipse cx="36" cy="54" rx="28" ry="24" fill="#3D2B1F"/>
-                  <ellipse cx="36" cy="55" rx="24" ry="20" fill="#4A3428"/>
-                  <ellipse cx="36" cy="60" rx="13" ry="10" fill="#6B4C3B"/>
-                  <ellipse cx="36" cy="36" rx="28" ry="26" fill="#3D2B1F"/>
-                  <ellipse cx="36" cy="37" rx="24" ry="22" fill="#4A3428"/>
-                  <ellipse cx="36" cy="43" rx="10" ry="8" fill="#6B4C3B"/>
-                  <g class="bb-eye-l" style="transform:translate(25px,34px)"><ellipse cx="0" cy="0" rx="6" ry="6" fill="#1A1010"/><ellipse cx="2" cy="-2" rx="2" ry="2" fill="white"/></g>
-                  <g class="bb-eye-r" style="transform:translate(47px,34px)"><ellipse cx="0" cy="0" rx="6" ry="6" fill="#1A1010"/><ellipse cx="2" cy="-2" rx="2" ry="2" fill="white"/></g>
-                  <ellipse cx="17" cy="36" rx="5" ry="3" fill="#FFB7B2" opacity=".7"/>
-                  <ellipse cx="55" cy="36" rx="5" ry="3" fill="#FFB7B2" opacity=".7"/>
-                  <!-- 拇指讚手勢 -->
-                  <path d="M8 52 Q2 50 4 62 Q6 70 14 68" stroke="#3D2B1F" stroke-width="5.5" fill="none" stroke-linecap="round"/>
-                  <circle cx="14" cy="68" r="5" fill="#FFF1A8"/>
-                  <path d="M64 52 Q70 50 68 62 Q66 70 58 68" stroke="#3D2B1F" stroke-width="5.5" fill="none" stroke-linecap="round"/>
-                  <circle cx="58" cy="68" r="5" fill="#FFF1A8"/>
+                  <!-- 黑豆身體 -->
+                  <ellipse cx="36" cy="46" rx="26" ry="30" fill="#1A1009"/>
+                  <ellipse cx="36" cy="46" rx="22" ry="26" fill="#2D1A08"/>
+                  <!-- 豆臍線 -->
+                  <ellipse cx="36" cy="46" rx="8" ry="16" fill="none" stroke="#3D2810" stroke-width="2" opacity=".7"/>
+                  <!-- 眼睛 -->
+                  <ellipse cx="27" cy="36" rx="4.5" ry="4.5" fill="#FFF"/>
+                  <ellipse cx="45" cy="36" rx="4.5" ry="4.5" fill="#FFF"/>
+                  <ellipse cx="28" cy="36.5" rx="2.3" ry="2.3" fill="#060200"/>
+                  <ellipse cx="46" cy="36.5" rx="2.3" ry="2.3" fill="#060200"/>
+                  <ellipse cx="27.5" cy="35.5" rx="1" ry="1" fill="#FFF"/>
+                  <ellipse cx="45.5" cy="35.5" rx="1" ry="1" fill="#FFF"/>
+                  <!-- 腮紅 -->
+                  <ellipse cx="18" cy="42" rx="5.5" ry="3" fill="#FF9AA0" opacity=".5"/>
+                  <ellipse cx="54" cy="42" rx="5.5" ry="3" fill="#FF9AA0" opacity=".5"/>
+                  <!-- 大笑容 -->
+                  <path d="M27 44 Q36 55 45 44" stroke="#FFF" stroke-width="2" fill="none" stroke-linecap="round"/>
+                  <!-- 開心手臂 -->
+                  <path d="M12 42 Q5 36 9 27" stroke="#2D1A08" stroke-width="5" fill="none" stroke-linecap="round"/>
+                  <circle cx="9" cy="27" r="4.5" fill="#FFF1A8"/>
+                  <path d="M60 42 Q67 36 63 27" stroke="#2D1A08" stroke-width="5" fill="none" stroke-linecap="round"/>
+                  <circle cx="63" cy="27" r="4.5" fill="#FFF1A8"/>
                 </g>
               </svg>
               <div class="result-tag" id="r-tag"></div>
@@ -1221,7 +1196,7 @@ body {
               <div class="cta-row">
                 <button class="cta-main" id="r-go-btn" onclick="handleGo()">
                   <div class="cta-main-shine"></div>
-                  我要跟 BearBear 一起去！
+                  我要跟 黑豆 一起去！
                 </button>
                 <button id="share-ig-btn" onclick="shareToIG()" style="flex-shrink:0;height:48px;padding:0 14px;background:#FFB7B2;border:none;border-radius:24px;font-size:13px;font-weight:700;color:white;cursor:pointer;font-family:inherit;white-space:nowrap">
                   分享 IG
@@ -1233,7 +1208,7 @@ body {
 
           <!-- 徽章解鎖 -->
           <div class="badge-reveal" id="badge-reveal">
-            <div class="badge-lbl">BearBear 幫你解鎖了新徽章！</div>
+            <div class="badge-lbl">黑豆 幫你解鎖了新徽章！</div>
             <!-- 桃園地頭蛇徽章 SVG -->
             <svg width="84" height="90" viewBox="0 0 130 140">
               <polygon points="65,8 78,42 115,42 86,63 97,97 65,76 33,97 44,63 15,42 52,42" fill="#FAC775" stroke="#E8A830" stroke-width="2"/>
@@ -1526,8 +1501,69 @@ const FALLBACK_EVENTS = [
     pin_emoji:'◆', is_free:true, is_indoor:false, cost_est:'NT$0 入場',
     hero_color:'#27500A', dtag:'文創 · 藝術', dtitle:'花蓮文創園區\n假日藝集',
     grid:[{icon:'🕗',lbl:'時間',val:'週六日 10:00–18:00'},{icon:'📍',lbl:'地點',val:'花蓮市中華路 144 號'},{icon:'🎟',lbl:'票價',val:'免費入場'},{icon:'🅿',lbl:'停車',val:'園區附設停車場（免費）'}],
-    pain:[{icon:'🎨',bg:'#EAF3DE',txt:'<strong>特色</strong>：日式宿舍群改建，東台灣最大文創基地'},{icon:'🚂',bg:'#E6F1FB',txt:'<strong>交通</strong>：花蓮火車站步行 20 分，建議騎自行車'},{icon:'🌊',bg:'#E1F5EE',txt:'<strong>周邊</strong>：結合花蓮港遊艇碼頭，景色壯闊'},{icon:'🐻',bg:'#FBEAF0',txt:'<strong>BearBear 推薦</strong>：園區內有在地設計師品牌'}],
+    pain:[{icon:'🎨',bg:'#EAF3DE',txt:'<strong>特色</strong>：日式宿舍群改建，東台灣最大文創基地'},{icon:'🚂',bg:'#E6F1FB',txt:'<strong>交通</strong>：花蓮火車站步行 20 分，建議騎自行車'},{icon:'🌊',bg:'#E1F5EE',txt:'<strong>周邊</strong>：結合花蓮港遊艇碼頭，景色壯闊'},{icon:'🫘',bg:'#FBEAF0',txt:'<strong>黑豆 推薦</strong>：園區內有在地設計師品牌'}],
     food:[{name:'自強夜市',meta:'步行 5 分'},{name:'公正包子',meta:'花蓮名物'},{name:'液香扁食',meta:'在地水餃老店'}] },
+
+  /* ── 登山健行 ── */
+  { id:'hk0', city:'台北', filter:'hiking free',
+    lat:25.1563, lng:121.5435, bar:'#8FAD6B', pin:'#4D7A2B',
+    tags:[{t:'登山',bg:'#DFF1E8',c:'#1E6648'},{t:'免費',bg:'#B2EBF2',c:'#085041'}],
+    name:'陽明山七星山主峰步道', time:'全年開放 06:00–18:00', dist:'—',
+    pin_emoji:'🏔', is_free:true, is_indoor:false, cost_est:'NT$0',
+    hero_color:'#2D5016', dtag:'台北 · 登山', dtitle:'陽明山\n七星山主峰步道',
+    start_date:'2026-01-01', end_date:'2026-12-31',
+    grid:[{icon:'🕗',lbl:'開放時間',val:'全年 06:00–18:00'},{icon:'📍',lbl:'入口',val:'台北市士林區小油坑停車場'},{icon:'🥾',lbl:'難度',val:'中級｜全程約 3-4 小時'},{icon:'📏',lbl:'海拔',val:'1,120 公尺（台灣最高火山）'}],
+    pain:[{icon:'🏔',bg:'#DFF1E8',txt:'<strong>路線</strong>：小油坑 → 七星山主峰，單程約 1.5 小時'},{icon:'👟',bg:'#E6F1FB',txt:'<strong>裝備</strong>：建議穿登山鞋，攜帶雨具及足夠飲水'},{icon:'🅿',bg:'#FAEEDA',txt:'<strong>停車</strong>：小油坑停車場（假日建議早到）'},{icon:'⚠️',bg:'#FBEAF0',txt:'<strong>注意</strong>：山頂常有強風，注意保暖'}],
+    food:[{name:'士林夜市',meta:'下山後必去'},{name:'陽明春天',meta:'泡湯勝地'},{name:'頂湖甕仔雞',meta:'登山後犒賞'}],
+    description:'七星山是台灣最高的火山，也是大屯火山群的最高峰，海拔1,120公尺。從小油坑遊客中心出發，沿途可觀賞硫磺噴氣孔、高山草原景觀，天氣晴朗時山頂可遠眺台北盆地、觀音山及淡水河口。', addr:'台北市士林區陽明山小油坑' },
+
+  { id:'hk1', city:'新北', filter:'hiking free',
+    lat:25.0014, lng:121.7614, bar:'#8FAD6B', pin:'#4D7A2B',
+    tags:[{t:'登山',bg:'#DFF1E8',c:'#1E6648'},{t:'親子',bg:'#FFF1A8',c:'#633806'}],
+    name:'瑞芳黃金瀑布 & 基隆山步道', time:'全年開放', dist:'—',
+    pin_emoji:'🏔', is_free:true, is_indoor:false, cost_est:'NT$0',
+    hero_color:'#3A5A1E', dtag:'新北 · 健行', dtitle:'瑞芳\n黃金瀑布 & 基隆山',
+    start_date:'2026-01-01', end_date:'2026-12-31',
+    grid:[{icon:'🕗',lbl:'開放時間',val:'全年開放'},{icon:'📍',lbl:'地點',val:'新北市瑞芳區金瓜石'},{icon:'🥾',lbl:'難度',val:'初級～中級｜1-2 小時'},{icon:'🚌',lbl:'交通',val:'瑞芳車站搭基隆客運'}],
+    pain:[{icon:'💛',bg:'#FFF1A8',txt:'<strong>特色</strong>：黃金礦山地形，酸性礦水形成天然奇景'},{icon:'🚌',bg:'#E6F1FB',txt:'<strong>交通</strong>：瑞芳車站搭基隆客運 788/825 路'},{icon:'📸',bg:'#DFF1E8',txt:'<strong>拍照</strong>：黃金瀑布、水湳洞陰陽海，IG 熱點'},{icon:'⏱',bg:'#FBEAF0',txt:'<strong>建議</strong>：可與九份、基隆山串聯一日行程'}],
+    food:[{name:'九份老街',meta:'車程 10 分'},{name:'阿妹茶樓',meta:'九份必訪'},{name:'礦工便當',meta:'金瓜石在地'}],
+    description:'黃金瀑布因礦山廢水長年流淌，瀑布石壁呈現金黃色澤，形成獨特景觀。基隆山（雞籠山）海拔588公尺，登頂可俯瞰九份、金瓜石及遠眺東北角海岸線，是東北角最具代表性的登山路線。', addr:'新北市瑞芳區金瓜石' },
+
+  { id:'hk2', city:'花蓮', filter:'hiking free',
+    lat:23.8697, lng:121.5177, bar:'#8FAD6B', pin:'#4D7A2B',
+    tags:[{t:'登山',bg:'#DFF1E8',c:'#1E6648'},{t:'百岳',bg:'#CECBF6',c:'#3D2A8A'}],
+    name:'合歡山主峰健行', time:'全年開放（冬季注意封路）', dist:'—',
+    pin_emoji:'🏔', is_free:true, is_indoor:false, cost_est:'NT$0',
+    hero_color:'#1E3D10', dtag:'花蓮 · 百岳', dtitle:'合歡山\n主峰健行',
+    start_date:'2026-01-01', end_date:'2026-12-31',
+    grid:[{icon:'🕗',lbl:'開放時間',val:'全年（冬季積雪或封路請查詢）'},{icon:'📍',lbl:'入口',val:'南投縣仁愛鄉合歡山管理站'},{icon:'🥾',lbl:'難度',val:'初級百岳｜來回約 2 小時'},{icon:'📏',lbl:'海拔',val:'3,417 公尺（台灣最易親近的百岳）'}],
+    pain:[{icon:'🌨',bg:'#E6F1FB',txt:'<strong>冬季</strong>：可賞雪，為台灣最容易看到雪的地方'},{icon:'🚗',bg:'#FAEEDA',txt:'<strong>交通</strong>：自行開車，或搭台中客運南投線'},{icon:'🌅',bg:'#DFF1E8',txt:'<strong>推薦</strong>：日出雲海景觀壯闊，建議住合歡山莊'},{icon:'⚠️',bg:'#FBEAF0',txt:'<strong>高山症</strong>：高度落差大，注意適應、補充水分'}],
+    food:[{name:'武嶺商店',meta:'海拔最高補給站'},{name:'清境農場',meta:'順遊必訪'},{name:'奧萬大楓葉季',meta:'秋季特別推薦'}],
+    description:'合歡山主峰海拔3,417公尺，是台灣最易親近的百岳之一，步道平緩好走，適合一般民眾挑戰。冬季降雪時是台灣最易觀雪的地點，吸引大批遊客。登頂可眺望中央山脈稜線及奇萊山，景色壯觀。', addr:'南投縣仁愛鄉合歡山管理站' },
+
+  { id:'hk3', city:'台中', filter:'hiking free',
+    lat:24.1631, lng:120.7142, bar:'#8FAD6B', pin:'#4D7A2B',
+    tags:[{t:'登山',bg:'#DFF1E8',c:'#1E6648'},{t:'免費',bg:'#B2EBF2',c:'#085041'}],
+    name:'大坑登山步道（1-10 號）', time:'全年開放 05:00–19:00', dist:'—',
+    pin_emoji:'🏔', is_free:true, is_indoor:false, cost_est:'NT$0',
+    hero_color:'#2D5016', dtag:'台中 · 步道', dtitle:'台中大坑\n登山步道',
+    start_date:'2026-01-01', end_date:'2026-12-31',
+    grid:[{icon:'🕗',lbl:'開放時間',val:'全年 05:00–19:00'},{icon:'📍',lbl:'地點',val:'台中市北屯區大坑風景區'},{icon:'🥾',lbl:'難度',val:'初～高級（依步道號碼區分）'},{icon:'🛤',lbl:'選擇',val:'共 10 條步道，長度 2-6 公里不等'}],
+    pain:[{icon:'🌿',bg:'#DFF1E8',txt:'<strong>特色</strong>：台中市民最愛的後花園，全年翠綠'},{icon:'⭐',bg:'#FFF1A8',txt:'<strong>推薦</strong>：1號步道（輕鬆）、5號步道（挑戰）'},{icon:'🚌',bg:'#E6F1FB',txt:'<strong>交通</strong>：搭台中客運大坑線，或自行開車'},{icon:'⏱',bg:'#FBEAF0',txt:'<strong>時間</strong>：視步道不同，約 1.5-3 小時'}],
+    food:[{name:'大坑觀光夜市',meta:'步道出口旁'},{name:'胡椒餅',meta:'山腳必吃'},{name:'大坑香蕉園',meta:'在地伴手禮'}],
+    description:'大坑風景區擁有1至10號共10條登山步道，難度從輕鬆到挑戰皆有，是台灣中部最熱門的登山健行地點。步道沿途風景優美，生態豐富，適合各年齡層，每年吸引超過百萬人次造訪。', addr:'台中市北屯區大坑風景區' },
+
+  { id:'hk4', city:'高雄', filter:'hiking free',
+    lat:22.6297, lng:120.5198, bar:'#8FAD6B', pin:'#4D7A2B',
+    tags:[{t:'登山',bg:'#DFF1E8',c:'#1E6648'},{t:'夜景',bg:'#B1D8F3',c:'#0C447C'}],
+    name:'柴山自然公園步道', time:'全年開放', dist:'—',
+    pin_emoji:'🏔', is_free:true, is_indoor:false, cost_est:'NT$0',
+    hero_color:'#1A3A0D', dtag:'高雄 · 步道', dtitle:'高雄柴山\n自然公園',
+    start_date:'2026-01-01', end_date:'2026-12-31',
+    grid:[{icon:'🕗',lbl:'開放時間',val:'全年開放'},{icon:'📍',lbl:'地點',val:'高雄市鼓山區柴山'},{icon:'🥾',lbl:'難度',val:'初級｜主步道往返約 2 小時'},{icon:'🐒',lbl:'特色',val:'台灣獼猴棲息地，珊瑚礁石灰岩地形'}],
+    pain:[{icon:'🐒',bg:'#DFF1E8',txt:'<strong>野生動物</strong>：台灣獼猴出沒，請勿餵食'},{icon:'🌅',bg:'#E6F1FB',txt:'<strong>夜景</strong>：頂點可俯瞰高雄港及西子灣夕照'},{icon:'🚌',bg:'#FAEEDA',txt:'<strong>交通</strong>：捷運西子灣站步行 20 分'},{icon:'👟',bg:'#FBEAF0',txt:'<strong>裝備</strong>：步道多碎石，建議穿包覆性鞋款'}],
+    food:[{name:'西子灣海鮮',meta:'步行 20 分'},{name:'旗津渡輪老街',meta:'搭渡輪 5 分'},{name:'鹽埕埔排骨飯',meta:'在地老餐廳'}],
+    description:'柴山是高雄市區內難得的自然山林，珊瑚礁石灰岩地形獨特，也是台灣獼猴的重要棲地。步道從壽山動物園旁出發，穿越熱帶植被，登頂可俯瞰高雄港灣及旗津半島，是高雄市民假日健身的首選。', addr:'高雄市鼓山區柴山路' },
 ];
 
 /* ════════════════════════════════════════
@@ -1560,6 +1596,7 @@ function transformTdxEvent(raw, index) {
   if (/夜市|美食|小吃|food/i.test(name+desc))     filter += 'food ';
   if (/室內|館內|indoor/i.test(name+desc))         filter += 'indoor ';
   if (/溫泉|泡湯|hot.spring/i.test(name+desc))    filter += 'spring ';
+  if (/爬山|登山|健行|步道|百岳|山岳|山徑|登頂|縱走/i.test(name+desc)) filter += 'hiking ';
   if (isFree) filter += 'free ';
   filter = filter.trim() || 'art';
 
@@ -1740,11 +1777,13 @@ const THEME_CONFIG = {
   '美食探險': { color:'#B07030', emoji:'🍜', filters:['food','market'] },
   '音樂派對': { color:'#6B5FA0', emoji:'🎵', filters:['music'] },
   '戶外冒險': { color:'#3D7A5A', emoji:'🌿', filters:['art','market'] },
+  '爬山健行': { color:'#4A5E3A', emoji:'🏔', filters:['hiking'] },
 };
 
 const TAG_LABELS = {
   free:'免費', art:'展覽', music:'音樂', food:'美食',
   market:'市集', indoor:'室內', tonight:'今晚',
+  spring:'溫泉', hiking:'登山',
 };
 
 /* 從真實活動資料隨機抽取符合主題的活動 */
@@ -2050,11 +2089,11 @@ function showResult() {
 
   const cfg = THEME_CONFIG[gachaTheme] || THEME_CONFIG['文青放鬆'];
   document.getElementById('result-header').style.background = cfg.color;
-  document.getElementById('r-tag').textContent = `BearBear 的${gachaTheme}精選`;
+  document.getElementById('r-tag').textContent = `黑豆 的${gachaTheme}精選`;
 
   if (trips.length > 0) {
     const cities = [...new Set(trips.map(e => e.city))].join('、');
-    document.getElementById('r-title').innerHTML = `${cfg.emoji} 熊熊幫你抽到<br>${trips.length} 個好去處！`;
+    document.getElementById('r-title').innerHTML = `${cfg.emoji} 黑豆幫你抽到<br>${trips.length} 個好去處！`;
     document.getElementById('r-sub').textContent = `橫跨 ${cities}`;
   } else {
     document.getElementById('r-title').innerHTML = '哎呀！<br>目前沒有符合的活動';
@@ -2098,7 +2137,7 @@ function handleGo() {
   if (wentOut) return;
   wentOut = true;
   const btn = document.getElementById('r-go-btn');
-  btn.textContent = 'BearBear 超開心！出發囉～';
+  btn.textContent = '黑豆 超開心！出發囉～';
   btn.style.background = '#B2EBF2';
   btn.style.color = '#085041';
   spawnConfetti(24);
@@ -2117,7 +2156,7 @@ function restartGacha() {
   const box = document.getElementById('gacha-box');
   if (box) box.style.animation = '';
   const cta = document.getElementById('gacha-cta');
-  if (cta) { cta.disabled=false; cta.textContent='刮開 BearBear 盲盒！'; }
+  if (cta) { cta.disabled=false; cta.textContent='刮開 黑豆 盲盒！'; }
   document.getElementById('step-result').style.display = 'none';
   document.getElementById('step-gacha').style.display  = 'none';
   document.getElementById('step-quiz').style.display   = 'flex';
@@ -2183,11 +2222,11 @@ async function shareToIG() {
     ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height,
                   0, yOff, targetW, cardH);
 
-    /* 底部 BearBear 浮水印文字 */
+    /* 底部 黑豆 浮水印文字 */
     ctx.fillStyle = 'rgba(176,128,112,0.7)';
     ctx.font      = `bold ${Math.round(targetW * 0.04)}px sans-serif`;
     ctx.textAlign = 'center';
-    ctx.fillText('BearBear 週末去哪玩', targetW/2, targetH - Math.round(targetW*0.04));
+    ctx.fillText('黑豆 週末去哪玩', targetW/2, targetH - Math.round(targetW*0.04));
 
     /* 下載 */
     const link  = document.createElement('a');
@@ -2523,7 +2562,7 @@ if ('serviceWorker' in navigator) {
           const newSW = reg.installing;
           newSW.addEventListener('statechange', () => {
             if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-              if (confirm('BearBear 有新版本！點確定立即更新 🐻')) {
+              if (confirm('黑豆 有新版本！點確定立即更新 🫘')) {
                 newSW.postMessage({ type: 'SKIP_WAITING' });
                 location.reload();
               }
