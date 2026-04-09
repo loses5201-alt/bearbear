@@ -77,19 +77,42 @@ body {
 
 /* ── 狀態列模擬（真機上隱藏，瀏覽器測試時顯示） ── */
 .status-bar {
-  height: calc(22px + var(--safe-top));
   padding-top: var(--safe-top);
-  background: var(--pk);
+  background: linear-gradient(135deg, #E8607A 0%, #F4A0B0 100%);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding-left: 16px;
   padding-right: 16px;
+  padding-bottom: 10px;
+  padding-top: calc(var(--safe-top) + 10px);
   flex-shrink: 0;
+  gap: 10px;
 }
-.sb-pill { width: 30px; height: 3px; background: rgba(255,255,255,.65); border-radius: 2px; }
-.sb-icons { display: flex; gap: 4px; }
-.sb-icon { width: 11px; height: 6px; background: rgba(255,255,255,.65); border-radius: 1px; }
+.brand-logo-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.brand-logo-title {
+  font-size: 20px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 1.5px;
+  line-height: 1.2;
+  text-shadow: 0 1px 4px rgba(0,0,0,.15);
+}
+.brand-logo-sub {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,.8);
+  letter-spacing: .5px;
+}
+.brand-bear {
+  font-size: 32px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.15));
+}
 
 /* ── 頂部導覽列 ── */
 .top-nav {
@@ -653,6 +676,8 @@ body {
 .choice-btn:active { transform: scale(.97); }
 .choice-btn.mint   { background: var(--mn); border-color: var(--mn-d); color: #085041; animation-delay: .45s; }
 .choice-btn.yello  { background: var(--yw); border-color: var(--yw-d); color: #7A6000; animation-delay: .62s; }
+.choice-btn.purp   { background: #EDE8F9;   border-color: #B0A0E0;     color: #4A3A90; animation-delay: .79s; }
+.choice-btn.green  { background: #DFF1E8;   border-color: #8BC8A8;     color: #1E6648; animation-delay: .96s; }
 .choice-icon { font-size: 30px; flex-shrink: 0; }
 .choice-title { font-size: 15px; font-weight: 500; }
 .choice-sub   { font-size: 11px; opacity: .65; margin-top: 2px; }
@@ -837,12 +862,13 @@ body {
 
 <div id="app">
 
-  <!-- ── 狀態列 ── -->
+  <!-- ── 品牌標頭 ── -->
   <div class="status-bar">
-    <div class="sb-pill"></div>
-    <div class="sb-icons">
-      <div class="sb-icon"></div><div class="sb-icon"></div><div class="sb-icon"></div>
+    <div class="brand-logo-wrap">
+      <div class="brand-logo-title">周末去哪玩</div>
+      <div class="brand-logo-sub">BearBear 帶你發現台灣好去處</div>
     </div>
+    <div class="brand-bear">🐻</div>
   </div>
 
   <!-- ── 頂部導覽列 ── -->
@@ -970,39 +996,6 @@ body {
       </div><!-- /radar-scroll -->
 
       <!-- 詳情抽屜：蓋在整個 view 上 -->
-      <div class="detail-overlay" id="detail-overlay" onclick="closeDetail(event)">
-        <div class="detail-drawer" id="detail-drawer">
-          <div class="drawer-handle"></div>
-          <div class="detail-hero" id="d-hero">
-            <div class="detail-hero-shine"></div>
-            <button class="detail-back" onclick="closeDetail()">← 返回</button>
-            <div>
-              <div class="detail-tag-badge" id="d-tag"></div>
-              <div class="detail-title" id="d-title"></div>
-            </div>
-          </div>
-          <div class="detail-body">
-            <div class="info-grid"    id="d-grid"></div>
-            <div id="d-desc" style="padding:10px 0;border-bottom:.5px solid #E8E3DC;margin-bottom:8px;display:none">
-              <div class="pain-title" style="margin-bottom:6px">活動內容</div>
-              <div id="d-desc-text" style="font-size:13px;color:#4A3428;line-height:1.75;white-space:pre-wrap"></div>
-            </div>
-            <div class="pain-section" id="d-pain"></div>
-            <div>
-              <div class="pain-title" style="margin-bottom:8px">附近網紅推薦美食</div>
-              <div class="food-scroll" id="d-food"></div>
-            </div>
-            <div class="cta-row">
-              <button class="cta-main" onclick="addToTrip()">
-                <div class="cta-main-shine"></div>
-                加入我的行程
-              </button>
-              <button class="cta-save" id="d-nav" onclick="openNavigation()" title="一鍵導航" style="font-size:16px">🧭</button>
-              <button class="cta-save" id="d-save" onclick="toggleSave(this)" title="收藏">♡</button>
-            </div>
-          </div>
-        </div>
-      </div>
     </div><!-- /view-radar -->
 
     <!-- ████ View 2：抽行程（Gacha SPA） ████ -->
@@ -1062,11 +1055,19 @@ body {
           </div>
           <button class="choice-btn mint" onclick="pickTheme('文青放鬆')">
             <div class="choice-icon">📚</div>
-            <div><div class="choice-title">文青放鬆</div><div class="choice-sub">熊熊戴眼鏡看書，悠哉逛老街</div></div>
+            <div><div class="choice-title">文青放鬆</div><div class="choice-sub">展覽老街，悠哉一整天</div></div>
           </button>
           <button class="choice-btn yello" onclick="pickTheme('美食探險')">
             <div class="choice-icon">🍜</div>
-            <div><div class="choice-title">美食探險</div><div class="choice-sub">熊熊拿叉子流口水，吃遍在地</div></div>
+            <div><div class="choice-title">美食探險</div><div class="choice-sub">市集夜市，吃遍在地味</div></div>
+          </button>
+          <button class="choice-btn purp" onclick="pickTheme('音樂派對')">
+            <div class="choice-icon">🎵</div>
+            <div><div class="choice-title">音樂派對</div><div class="choice-sub">演唱音樂祭，嗨翻這個週末</div></div>
+          </button>
+          <button class="choice-btn green" onclick="pickTheme('戶外冒險')">
+            <div class="choice-icon">🌿</div>
+            <div><div class="choice-title">戶外冒險</div><div class="choice-sub">市集活動，走出去動一動</div></div>
           </button>
         </div>
 
@@ -1211,6 +1212,41 @@ body {
     </div><!-- /view-gacha -->
 
   </div><!-- /main-content -->
+
+  <!-- 活動詳情抽屜：掛在 #app 最外層，任何 view 皆可開啟 -->
+  <div class="detail-overlay" id="detail-overlay" onclick="closeDetail(event)">
+    <div class="detail-drawer" id="detail-drawer">
+      <div class="drawer-handle"></div>
+      <div class="detail-hero" id="d-hero">
+        <div class="detail-hero-shine"></div>
+        <button class="detail-back" onclick="closeDetail()">← 返回</button>
+        <div>
+          <div class="detail-tag-badge" id="d-tag"></div>
+          <div class="detail-title" id="d-title"></div>
+        </div>
+      </div>
+      <div class="detail-body">
+        <div class="info-grid"    id="d-grid"></div>
+        <div id="d-desc" style="padding:10px 0;border-bottom:.5px solid #E8E3DC;margin-bottom:8px;display:none">
+          <div class="pain-title" style="margin-bottom:6px">活動內容</div>
+          <div id="d-desc-text" style="font-size:13px;color:#4A3428;line-height:1.75;white-space:pre-wrap"></div>
+        </div>
+        <div class="pain-section" id="d-pain"></div>
+        <div>
+          <div class="pain-title" style="margin-bottom:8px">附近網紅推薦美食</div>
+          <div class="food-scroll" id="d-food"></div>
+        </div>
+        <div class="cta-row">
+          <button class="cta-main" onclick="addToTrip()">
+            <div class="cta-main-shine"></div>
+            加入我的行程
+          </button>
+          <button class="cta-save" id="d-nav" onclick="openNavigation()" title="一鍵導航" style="font-size:16px">🧭</button>
+          <button class="cta-save" id="d-save" onclick="toggleSave(this)" title="收藏">♡</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div><!-- /app -->
 
 <!-- ============================================================
@@ -1646,32 +1682,37 @@ function showLoading(on) {
 /* ════════════════════════════════════════
    行程資料庫（Gacha 結果，固定不受 API 影響）
 ════════════════════════════════════════ */
-const ITINERARIES = {
-  '文青放鬆': {
-    tag:'BearBear 的文青精選', headerColor:'#C47B80',
-    title:'台北大稻埕\n文青半日遊', sub:'台北市大同區 · 4 景點 · 約 5 小時',
-    stats:[{num:'4',lbl:'景點'},{num:'5h',lbl:'旅程'},{num:'NT$350',lbl:'預估花費'}],
-    stops:[
-      {n:'永樂市場',t:'09:30',m:'花布老建築、南北貨探索'},
-      {n:'霞海城隍廟巷弄',t:'10:30',m:'文青選物店聚集地'},
-      {n:'大稻埕碼頭',t:'12:00',m:'淡水河景、IG 絕美取景地'},
-      {n:'阿城鵝肉老店',t:'13:00',m:'50 年老店、銅板美食'},
-    ],
-    pills:[{t:'文青',c:'pill-pk'},{t:'老街',c:'pill-pk'},{t:'免費景點',c:'pill-bl'},{t:'美食',c:'pill-mn'}],
-  },
-  '美食探險': {
-    tag:'BearBear 的美食地圖', headerColor:'#8B6010',
-    title:'桃園在地\n美食大冒險', sub:'桃園市中壢・大溪 · 4 景點 · 約 6 小時',
-    stats:[{num:'4',lbl:'景點'},{num:'6h',lbl:'旅程'},{num:'NT$680',lbl:'預估花費'}],
-    stops:[
-      {n:'大溪老街豆干市集',t:'10:00',m:'滷豆干、花生、零食一條街'},
-      {n:'阿嬤の割包',t:'11:30',m:'傳說中排隊 40 分鐘的古早味'},
-      {n:'八德埤塘公園',t:'13:30',m:'散步消化 + 網美拍照'},
-      {n:'龜山夜市',t:'18:00',m:'在地人才知道的銅板美食'},
-    ],
-    pills:[{t:'美食',c:'pill-pk'},{t:'在地小吃',c:'pill-pk'},{t:'老街',c:'pill-bl'},{t:'親子友善',c:'pill-mn'}],
-  },
+const THEME_CONFIG = {
+  '文青放鬆': { color:'#C47B80', emoji:'📚', filters:['art','indoor'] },
+  '美食探險': { color:'#B07030', emoji:'🍜', filters:['food','market'] },
+  '音樂派對': { color:'#6B5FA0', emoji:'🎵', filters:['music'] },
+  '戶外冒險': { color:'#3D7A5A', emoji:'🌿', filters:['art','market'] },
 };
+
+const TAG_LABELS = {
+  free:'免費', art:'展覽', music:'音樂', food:'美食',
+  market:'市集', indoor:'室內', tonight:'今晚',
+};
+
+/* 從真實活動資料隨機抽取符合主題的活動 */
+function generateTrip(theme) {
+  const cfg = THEME_CONFIG[theme] || THEME_CONFIG['文青放鬆'];
+  const src = _allEventsCache || [...FALLBACK_EVENTS];
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  let pool = src.filter(ev => {
+    const end = getEventEndDate(ev);
+    if (end && end < today) return false;
+    return cfg.filters.some(k => (ev.filter || '').includes(k));
+  });
+
+  /* Fisher-Yates 洗牌 */
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, 4);
+}
 
 /* ════════════════════════════════════════
    工具：Haversine 距離（km）
@@ -1946,14 +1987,54 @@ function doScratch() {
 function showResult() {
   document.getElementById('step-gacha').style.display = 'none';
   document.getElementById('step-result').style.display = 'flex';
-  const data = ITINERARIES[gachaTheme] || ITINERARIES['文青放鬆'];
-  document.getElementById('result-header').style.background = data.headerColor;
-  document.getElementById('r-tag').textContent  = data.tag;
-  document.getElementById('r-title').innerHTML  = data.title.replace('\n','<br>');
-  document.getElementById('r-sub').textContent  = data.sub;
-  document.getElementById('r-stats').innerHTML  = data.stats.map(s=>`<div class="stat-chip"><div class="stat-num">${s.num}</div><div class="stat-lbl">${s.lbl}</div></div>`).join('');
-  document.getElementById('r-stops').innerHTML  = data.stops.map((s,i)=>`${i>0?'<div class="stop-connector"></div>':''}<div class="stop-row"><div class="stop-circle">${i+1}</div><div><div class="stop-name">${s.t} · ${s.n}</div><div class="stop-meta">${s.m}</div></div></div>`).join('');
-  document.getElementById('r-pills').innerHTML  = data.pills.map(p=>`<span class="pill ${p.c}">${p.t}</span>`).join('');
+
+  const trips = generateTrip(gachaTheme);
+  window._gachaTrips = trips;
+
+  const cfg = THEME_CONFIG[gachaTheme] || THEME_CONFIG['文青放鬆'];
+  document.getElementById('result-header').style.background = cfg.color;
+  document.getElementById('r-tag').textContent = `BearBear 的${gachaTheme}精選`;
+
+  if (trips.length > 0) {
+    const cities = [...new Set(trips.map(e => e.city))].join('、');
+    document.getElementById('r-title').innerHTML = `${cfg.emoji} 熊熊幫你抽到<br>${trips.length} 個好去處！`;
+    document.getElementById('r-sub').textContent = `橫跨 ${cities}`;
+  } else {
+    document.getElementById('r-title').innerHTML = '哎呀！<br>目前沒有符合的活動';
+    document.getElementById('r-sub').textContent = '換個主題或城市試試看吧';
+  }
+
+  const freeCount   = trips.filter(e => e.is_free).length;
+  const indoorCount = trips.filter(e => e.is_indoor).length;
+  document.getElementById('r-stats').innerHTML = [
+    `<div class="stat-chip"><div class="stat-num">${trips.length}</div><div class="stat-lbl">景點</div></div>`,
+    `<div class="stat-chip"><div class="stat-num">${freeCount}</div><div class="stat-lbl">免費</div></div>`,
+    `<div class="stat-chip"><div class="stat-num">${indoorCount}</div><div class="stat-lbl">室內</div></div>`,
+  ].join('');
+
+  document.getElementById('r-stops').innerHTML = trips.map((ev, i) => `
+    ${i > 0 ? '<div class="stop-connector"></div>' : ''}
+    <div class="stop-row" onclick="openGachaDetail('${ev.id}')"
+      style="cursor:pointer;border-radius:10px;padding:6px 8px;margin:0 -8px;transition:background .15s"
+      onmouseenter="this.style.background='#F1EFE8'" onmouseleave="this.style.background=''">
+      <div class="stop-circle">${i + 1}</div>
+      <div style="flex:1;min-width:0">
+        <div class="stop-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ev.city} · ${ev.name}</div>
+        <div class="stop-meta">${ev.time}${ev.is_free ? ' · 免費' : ''}</div>
+      </div>
+      <div style="font-size:18px;color:var(--sub);flex-shrink:0">›</div>
+    </div>`).join('');
+
+  const allTags = [...new Set(trips.flatMap(e => (e.filter || '').split(' ')))].filter(Boolean).slice(0, 4);
+  const pillCls = ['pill-pk', 'pill-bl', 'pill-mn', 'pill-pk'];
+  document.getElementById('r-pills').innerHTML = allTags.map((t, i) =>
+    `<span class="pill ${pillCls[i % pillCls.length]}">${TAG_LABELS[t] || t}</span>`
+  ).join('');
+}
+
+/* 從抽行程結果點入活動詳情 */
+function openGachaDetail(id) {
+  openDetail(id);
 }
 
 function handleGo() {
