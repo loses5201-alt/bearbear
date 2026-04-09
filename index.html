@@ -495,6 +495,28 @@ body {
 }
 .ev-row:hover  { border-color: #5C2E0A; box-shadow: 0 3px 12px rgba(90,40,10,.18); }
 .ev-row:active { transform: scale(.98); }
+@keyframes card-flash {
+  0%,100% { border-color: var(--bdr); box-shadow: 0 1px 4px rgba(90,40,10,.10); }
+  30%,70% { border-color: var(--pk-d); box-shadow: 0 0 0 3px rgba(200,100,80,.25); }
+}
+.ev-row.card-highlight { animation: card-flash .9s ease; }
+
+/* ── 骨架屏 ── */
+@keyframes sk-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.sk-card {
+  display: flex; gap: 10px; padding: 12px 12px;
+  background: var(--bg); border-radius: 16px;
+  border: 1.5px solid var(--bdr);
+}
+.sk-line {
+  border-radius: 6px;
+  background: linear-gradient(90deg, #F0EDE8 25%, #E2DDD7 50%, #F0EDE8 75%);
+  background-size: 200% 100%;
+  animation: sk-shimmer 1.4s ease-in-out infinite;
+}
 .ev-bar  { width: 4px; border-radius: 3px; flex-shrink: 0; align-self: stretch; min-height: 50px; }
 .ev-info { flex: 1; min-width: 0; }
 .ev-name { font-size: 15px; font-weight: 800; color: var(--txt); margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.45; }
@@ -2230,6 +2252,47 @@ function showLoading(on) {
   const el = document.getElementById('loading-bar');
   if (!el) return;
   el.style.opacity = on ? '1' : '0';
+  if (on) renderSkeleton();
+}
+
+/* 骨架屏：載入中先顯示佔位卡片 */
+function renderSkeleton() {
+  const list = document.getElementById('ev-list');
+  const empty = document.getElementById('empty-state');
+  if (!list) return;
+  empty.style.display = 'none';
+  list.style.display = 'flex';
+  list.innerHTML = Array(5).fill(0).map(() => `
+    <div class="sk-card">
+      <div class="sk-line" style="width:4px;border-radius:3px;align-self:stretch;min-height:68px;flex-shrink:0"></div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:7px;padding:2px 0">
+        <div class="sk-line" style="height:9px;width:35%"></div>
+        <div class="sk-line" style="height:14px;width:70%"></div>
+        <div class="sk-line" style="height:9px;width:50%"></div>
+        <div style="display:flex;gap:6px;margin-top:2px">
+          <div class="sk-line" style="height:20px;width:44px;border-radius:10px"></div>
+          <div class="sk-line" style="height:20px;width:36px;border-radius:10px"></div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+/* 地圖 Pin 點擊 → 捲動列表並高亮對應卡片 */
+function scrollToCard(id) {
+  const card   = document.getElementById('card-' + id);
+  const scroll = document.getElementById('radar-scroll');
+  if (!card || !scroll) return;
+  /* 若目前不在 radar view 則不捲動 */
+  if (!document.getElementById('view-radar').classList.contains('active')) return;
+  const cardTop    = card.getBoundingClientRect().top;
+  const scrollTop  = scroll.getBoundingClientRect().top;
+  const offset     = card.offsetTop - 12;
+  scroll.scrollTo({ top: offset, behavior: 'smooth' });
+  /* 動畫高亮 */
+  card.classList.remove('card-highlight');
+  void card.offsetWidth; /* reflow 觸發重新播動畫 */
+  card.classList.add('card-highlight');
+  setTimeout(() => card.classList.remove('card-highlight'), 1000);
 }
 
 /* ════════════════════════════════════════
@@ -2623,6 +2686,7 @@ function renderList(evs) {
     const heartSaved = savedIds.has(ev.id);
     const row = document.createElement('div');
     row.className = 'ev-row';
+    row.id = 'card-' + ev.id;
     row.style.cssText += ';position:relative';
     row.style.animationDelay = (i * 0.06) + 's';
     row.onclick = () => openDetail(ev.id);
@@ -3041,7 +3105,7 @@ function renderLeafletPins(evs) {
     });
     const marker = L.marker([ev.lat, ev.lng], { icon })
       .addTo(leafletMap)
-      .on('click', () => openDetail(ev.id));
+      .on('click', () => { scrollToCard(ev.id); openDetail(ev.id); });
     marker._isBearPin = true;
   });
 }
