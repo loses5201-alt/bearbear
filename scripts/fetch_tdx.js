@@ -210,6 +210,7 @@ function transform(raw, index) {
     ],
     food       : [],
     website,
+    addr,
     start_date : start,
     end_date   : end,
     description: desc ? desc.slice(0, 500) : '',

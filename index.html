@@ -1490,6 +1490,7 @@ function transformTdxEvent(raw, index) {
     ],
     food:[],
     website: raw.WebsiteUrl || '',
+    addr,
     start_date: start,
     end_date: end,
     description: (raw.Description || '').slice(0, 500),
@@ -2254,13 +2255,29 @@ function openDetail(id) {
     descEl.style.display = 'none';
   }
 
+  /* 地址 → Google Maps 連結 */
+  const mapsAddr = ev.addr || (ev.grid && ev.grid[1] && ev.grid[1].val !== ev.city ? ev.grid[1].val : '');
+  const mapsUrl  = mapsAddr
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsAddr)}`
+    : (ev.lat && ev.lng ? `https://www.google.com/maps/search/?api=1&query=${ev.lat},${ev.lng}` : '');
+
+  const painRows = (ev.pain||[]).map(p => {
+    const isAddr = p.icon === '📍';
+    let txt = p.txt;
+    if (isAddr && mapsUrl) {
+      txt += ` <a href="${mapsUrl}" target="_blank" rel="noopener"
+        style="display:inline-block;margin-left:6px;font-size:11px;font-weight:700;
+               color:#185FA5;text-decoration:none;background:#E6F1FB;
+               border-radius:8px;padding:1px 7px;white-space:nowrap">在地圖開啟 ↗</a>`;
+    }
+    return `<div class="pain-row">
+      <div class="pain-icon-box" style="background:${p.bg}">${p.icon}</div>
+      <div class="pain-text">${txt}</div>
+    </div>`;
+  }).join('');
+
   document.getElementById('d-pain').innerHTML =
-    '<div class="pain-title">痛點資訊</div>' +
-    (ev.pain||[]).map(p => `
-      <div class="pain-row">
-        <div class="pain-icon-box" style="background:${p.bg}">${p.icon}</div>
-        <div class="pain-text">${p.txt}</div>
-      </div>`).join('');
+    '<div class="pain-title">詳細資訊</div>' + painRows;
 
   document.getElementById('d-food').innerHTML = (ev.food||[]).map(f => `
     <div class="food-chip">
