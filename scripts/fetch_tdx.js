@@ -136,6 +136,7 @@ function inferFilter(name = '', desc = '') {
   if (/展覽|美術|博物|gallery|特展|常設展/.test(text)) parts.push('art');
   if (/夜市|美食|小吃|food|吃貨/.test(text))       parts.push('food');
   if (/室內|館內|indoor|地下/.test(text))           parts.push('indoor');
+  if (/溫泉|泡湯|hot.spring/.test(text))           parts.push('spring');
   if (parts.length === 0) parts.push('art');  /* 預設歸展覽 */
   return parts.join(' ');
 }
