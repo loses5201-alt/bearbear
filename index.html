@@ -2140,7 +2140,7 @@ function renderLeafletPins(evs) {
 
 /* switchCity 快速前端過濾 */
 async function _switchCityLoad(city) {
-  const cache = window._allEventsCache;
+  const cache = _allEventsCache;
   if (cache) {
     EVENTS = city === 'all' ? cache : cache.filter(e => e.city === city);
     refreshList(); renderLeafletPins(EVENTS);
@@ -2153,7 +2153,7 @@ async function _switchCityLoad(city) {
    活動詳情抽屜
 ════════════════════════════════════════ */
 function openDetail(id) {
-  const allEvs = (window._allEventsCache || []).concat(FALLBACK_EVENTS);
+  const allEvs = (_allEventsCache || []).concat(FALLBACK_EVENTS);
   const ev = allEvs.find(e => e.id === id);
   if (!ev) return;
   currentDetailId = id;
