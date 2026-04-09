@@ -394,11 +394,15 @@ body {
 }
 .sort-btn {
   font-size: 11px;
-  color: var(--sub);
-  background: none;
-  border: none;
+  color: var(--txt);
+  background: var(--bg);
+  border: 1.5px solid #C8B89A;
+  border-radius: 12px;
+  padding: 3px 10px;
   cursor: pointer;
   font-family: var(--font);
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 /* 活動列表卡片 */
@@ -900,7 +904,7 @@ body {
         <div class="list-header-title" id="list-title">附近 5km · 今天</div>
         <div style="display:flex;align-items:center;gap:8px">
           <div class="list-count" id="list-count">4 個活動</div>
-          <button class="sort-btn">距離排序 ▾</button>
+          <button class="sort-btn" id="sort-btn" onclick="toggleSort()">📅 日期排序</button>
         </div>
       </div>
 
@@ -958,6 +962,10 @@ body {
           </div>
           <div class="detail-body">
             <div class="info-grid"    id="d-grid"></div>
+            <div id="d-desc" style="padding:10px 0;border-bottom:.5px solid #E8E3DC;margin-bottom:8px;display:none">
+              <div class="pain-title" style="margin-bottom:6px">活動內容</div>
+              <div id="d-desc-text" style="font-size:13px;color:#4A3428;line-height:1.75;white-space:pre-wrap"></div>
+            </div>
             <div class="pain-section" id="d-pain"></div>
             <div>
               <div class="pain-title" style="margin-bottom:8px">附近網紅推薦美食</div>
@@ -1480,7 +1488,11 @@ function transformTdxEvent(raw, index) {
       {icon:'🎟', bg:'#E1F5EE', txt:`<strong>費用</strong>：${isFree?'完全免費':(raw.Charge||'詳見官網')}`},
       {icon:'🌐', bg:'#FBEAF0', txt: raw.WebsiteUrl ? `<strong>官網</strong>：<a href="${raw.WebsiteUrl}" target="_blank" style="color:#185FA5">點此開啟</a>` : '<strong>官網</strong>：暫無'},
     ],
-    food:[],   /* TDX 無周邊美食資料，可日後串接 Google Places */
+    food:[],
+    website: raw.WebsiteUrl || '',
+    start_date: start,
+    end_date: end,
+    description: (raw.Description || '').slice(0, 500),
     _raw: raw,
   };
   } catch(e) {
@@ -1642,18 +1654,51 @@ const ITINERARIES = {
 };
 
 /* ════════════════════════════════════════
+   工具：Haversine 距離（km）
+════════════════════════════════════════ */
+function haversineKm(lat1, lng1, lat2, lng2) {
+  const R = 6371, toRad = x => x * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1), dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+/* 取活動結束日（供過期過濾 & 日期排序） */
+function getEventEndDate(ev) {
+  if (ev.end_date && /^\d{4}-\d{2}-\d{2}/.test(ev.end_date))   return new Date(ev.end_date);
+  if (ev.start_date && /^\d{4}-\d{2}-\d{2}/.test(ev.start_date)) return new Date(ev.start_date);
+  /* 從 time 字串解析，例如 "2026-05-16 – 2026-05-17" */
+  const parts = (ev.time || '').split('–');
+  const dateStr = (parts[parts.length - 1] || '').trim().slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(dateStr) ? new Date(dateStr) : null;
+}
+
+function getEventStartDate(ev) {
+  if (ev.start_date && /^\d{4}-\d{2}-\d{2}/.test(ev.start_date)) return new Date(ev.start_date);
+  const parts = (ev.time || '').split('–');
+  const dateStr = (parts[0] || '').trim().slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(dateStr) ? new Date(dateStr) : null;
+}
+
+/* ════════════════════════════════════════
    搜尋 + 篩選 + 縣市切換邏輯
 ════════════════════════════════════════ */
 const CITY_LS_KEY = 'bb_last_city_v1';
 
 let currentFilter  = 'all';
+let currentSort    = 'date';   /* 'date' | 'distance' */
 let currentCity    = localStorage.getItem(CITY_LS_KEY) || 'all';
 let currentSearch  = '';
 
-/* 三維度過濾 */
+/* 三維度過濾 + 過期活動自動排除 */
 function getFiltered() {
   const q = currentSearch.trim().toLowerCase();
+  const today = new Date(); today.setHours(0, 0, 0, 0);
   return EVENTS.filter(ev => {
+    /* 過期活動：結束日 < 今天，自動隱藏 */
+    const endDate = getEventEndDate(ev);
+    if (endDate && endDate < today) return false;
+
     if (currentCity !== 'all' && ev.city !== currentCity) return false;
     if (currentFilter !== 'all' && !ev.filter.includes(currentFilter)) return false;
     if (q) {
@@ -1665,8 +1710,38 @@ function getFiltered() {
   });
 }
 
+function sortEvents(evs) {
+  if (currentSort === 'distance') {
+    const [uLat, uLng] = userLatLng;
+    return [...evs].sort((a, b) => {
+      const dA = (a.lat && a.lng) ? haversineKm(uLat, uLng, a.lat, a.lng) : Infinity;
+      const dB = (b.lat && b.lng) ? haversineKm(uLat, uLng, b.lat, b.lng) : Infinity;
+      /* 更新顯示距離 */
+      a.dist = dA === Infinity ? '—' : (dA < 1 ? (dA*1000).toFixed(0)+'m' : dA.toFixed(1)+'km');
+      b.dist = dB === Infinity ? '—' : (dB < 1 ? (dB*1000).toFixed(0)+'m' : dB.toFixed(1)+'km');
+      return dA - dB;
+    });
+  }
+  /* 預設：日期排序（早→晚），沒有日期的排最後 */
+  return [...evs].sort((a, b) => {
+    const dA = getEventStartDate(a);
+    const dB = getEventStartDate(b);
+    if (!dA && !dB) return 0;
+    if (!dA) return 1;
+    if (!dB) return -1;
+    return dA - dB;
+  });
+}
+
+function toggleSort() {
+  currentSort = currentSort === 'date' ? 'distance' : 'date';
+  const btn = document.getElementById('sort-btn');
+  if (btn) btn.textContent = currentSort === 'date' ? '📅 日期排序' : '📍 距離排序';
+  refreshList();
+}
+
 function refreshList() {
-  const filtered = getFiltered();
+  const filtered = sortEvents(getFiltered());
   renderList(filtered);
   renderLeafletPins(filtered);
   const cityLabel = currentCity === 'all' ? '全台' : currentCity;
@@ -2168,6 +2243,16 @@ function openDetail(id) {
       <div class="info-lbl">${g.lbl}</div>
       <div class="info-val">${g.val}</div>
     </div>`).join('');
+
+  /* 活動描述 */
+  const descEl = document.getElementById('d-desc');
+  const descTextEl = document.getElementById('d-desc-text');
+  if (ev.description) {
+    descTextEl.textContent = ev.description;
+    descEl.style.display = 'block';
+  } else {
+    descEl.style.display = 'none';
+  }
 
   document.getElementById('d-pain').innerHTML =
     '<div class="pain-title">痛點資訊</div>' +

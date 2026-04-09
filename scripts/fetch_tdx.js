@@ -208,8 +208,11 @@ function transform(raw, index) {
           ? `<strong>官網</strong>：<a href="${website}" target="_blank" rel="noopener" style="color:#185FA5">點此開啟</a>`
           : '<strong>官網</strong>：暫無' },
     ],
-    food    : [],   /* TDX 無鄰近美食資料，可日後串 Google Places */
+    food       : [],
     website,
+    start_date : start,
+    end_date   : end,
+    description: desc ? desc.slice(0, 500) : '',
   };
 }
 
