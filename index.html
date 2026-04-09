@@ -190,14 +190,27 @@ body {
 /* ════════════════════════════════════════
    ① 找附近 (LBS Radar) 相關樣式
 ════════════════════════════════════════ */
+/* ── Radar 固定上半 / 可捲動下半 ── */
+#view-radar {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;   /* 覆蓋 .view 的 overflow-y: auto */
+}
+#radar-fixed {
+  flex-shrink: 0;
+}
+#radar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* 頂部搜尋 + 篩選 */
 .radar-topbar {
   background: var(--card);
   border-bottom: 1px solid var(--bdr);
   padding: 10px 14px 8px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
 }
 .radar-search-row {
   display: flex;
@@ -852,6 +865,8 @@ body {
     <!-- ████ View 1：找附近（LBS 雷達） ████ -->
     <div class="view active" id="view-radar">
 
+      <!-- ══ 固定上半：搜尋 + 地圖 ══ -->
+      <div id="radar-fixed">
       <!-- 搜尋 + 篩選 -->
       <div class="radar-topbar">
         <div class="radar-search-row">
@@ -889,7 +904,10 @@ body {
       <div id="loading-bar" style="height:3px;background:var(--pk);opacity:0;transition:opacity .3s;position:relative;overflow:hidden">
         <div style="position:absolute;inset:0;background:var(--pk-d);animation:shine 1.2s ease-in-out infinite;"></div>
       </div>
+      </div><!-- /radar-fixed -->
 
+      <!-- ══ 可捲動下半：預算 + 列表 ══ -->
+      <div id="radar-scroll">
       <!-- ★ 模組 2：行程預算吸頂條 ★ -->
       <div id="budget-bar" style="
         background:white;
@@ -948,7 +966,10 @@ body {
         <button onclick="clearSearch()" style="margin-top:4px;background:var(--pk);border:none;border-radius:20px;padding:8px 22px;color:white;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">清除搜尋</button>
       </div>
 
-      <!-- 詳情抽屜 -->
+      <div class="safe-bottom"></div>
+      </div><!-- /radar-scroll -->
+
+      <!-- 詳情抽屜：蓋在整個 view 上 -->
       <div class="detail-overlay" id="detail-overlay" onclick="closeDetail(event)">
         <div class="detail-drawer" id="detail-drawer">
           <div class="drawer-handle"></div>
@@ -982,8 +1003,6 @@ body {
           </div>
         </div>
       </div>
-
-      <div class="safe-bottom"></div>
     </div><!-- /view-radar -->
 
     <!-- ████ View 2：抽行程（Gacha SPA） ████ -->
