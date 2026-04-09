@@ -632,7 +632,58 @@ body {
   flex-shrink: 0;
 }
 .cta-save:hover { border-color: var(--pk); }
-.cta-save.saved { background: var(--pk-l); border-color: var(--pk); }
+.cta-save.saved { background: var(--pk-l); border-color: var(--pk); color: var(--pk-d); }
+.cta-share {
+  width: 48px; height: 48px;
+  background: var(--bg);
+  border: 1.5px solid var(--bdr);
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.cta-share:hover { border-color: #6B9FD4; background: #E6F1FB; }
+
+/* 卡片愛心 */
+.ev-heart {
+  position: absolute; top: 10px; right: 10px;
+  font-size: 18px; cursor: pointer;
+  color: #CCC; transition: color .2s, transform .2s;
+  background: none; border: none; padding: 4px; line-height: 1;
+  z-index: 2;
+}
+.ev-heart:active { transform: scale(1.3); }
+.ev-heart.saved  { color: #E85D7A; }
+
+/* ── 收藏視圖 ── */
+#view-saved { flex-direction: column; overflow: hidden; }
+.saved-header {
+  padding: 16px 18px 10px;
+  font-size: 18px; font-weight: 700; color: var(--txt);
+  display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
+}
+.saved-count {
+  font-size: 12px; font-weight: 600; background: var(--pk-l);
+  color: var(--pk-d); border-radius: 20px; padding: 2px 10px;
+}
+#saved-list { flex: 1; overflow-y: auto; padding: 0 12px 12px; }
+.saved-empty {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 48px 20px; gap: 12px; color: var(--sub);
+}
+.saved-empty-title { font-size: 15px; font-weight: 700; color: var(--txt); }
+.saved-empty-sub   { font-size: 13px; text-align: center; line-height: 1.6; }
+
+/* 智慧空結果建議按鈕 */
+.empty-suggest-btn {
+  margin-top: 8px; background: var(--pk); border: none;
+  border-radius: 20px; padding: 9px 24px;
+  color: white; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+}
 
 /* ════════════════════════════════════════
    ② 抽行程 (Gacha) 相關樣式
@@ -916,6 +967,10 @@ body {
     <button class="nav-tab" id="tab-gacha" onclick="switchTab('gacha')">
       <div class="nav-tab-icon">🎲</div>
       <div class="nav-tab-lbl">抽行程</div>
+    </button>
+    <button class="nav-tab" id="tab-saved" onclick="switchTab('saved');renderSavedView()">
+      <div class="nav-tab-icon">♡</div>
+      <div class="nav-tab-lbl">收藏</div>
     </button>
   </nav>
 
@@ -1238,6 +1293,19 @@ body {
       </div><!-- /gacha-inner -->
     </div><!-- /view-gacha -->
 
+    <!-- ████ View 3：收藏清單 ████ -->
+    <div class="view" id="view-saved" style="display:flex">
+      <div class="status-bar" style="flex-shrink:0">
+        <div class="brand-logo-wrap">
+          <div class="brand-logo-title">收藏清單</div>
+          <div class="brand-logo-sub">你想去的好地方</div>
+        </div>
+        <div class="brand-bear">♥</div>
+      </div>
+      <div id="saved-list"></div>
+      <div class="safe-bottom"></div>
+    </div><!-- /view-saved -->
+
   </div><!-- /main-content -->
 
   <!-- 活動詳情抽屜：掛在 #app 最外層，任何 view 皆可開啟 -->
@@ -1268,6 +1336,7 @@ body {
             <div class="cta-main-shine"></div>
             加入我的行程
           </button>
+          <button class="cta-share" onclick="shareEvent()" title="分享">🔗</button>
           <button class="cta-save" id="d-nav" onclick="openNavigation()" title="一鍵導航" style="font-size:16px">🧭</button>
           <button class="cta-save" id="d-save" onclick="toggleSave(this)" title="收藏">♡</button>
         </div>
@@ -2393,6 +2462,129 @@ function attachLazyObservers() {
   document.querySelectorAll('img[data-src]').forEach(img => _lazyObs.observe(img));
 }
 
+/* ════════════════════════════════════════
+   收藏功能
+════════════════════════════════════════ */
+const SAVED_LS_KEY = 'bb_saved_v1';
+
+function getSavedIds() {
+  try { return new Set(JSON.parse(localStorage.getItem(SAVED_LS_KEY) || '[]')); }
+  catch { return new Set(); }
+}
+
+function isSaved(id) { return getSavedIds().has(id); }
+
+function persistSave(id, save) {
+  const ids = getSavedIds();
+  save ? ids.add(id) : ids.delete(id);
+  localStorage.setItem(SAVED_LS_KEY, JSON.stringify([...ids]));
+  /* 更新收藏 tab icon */
+  const tabIcon = document.querySelector('#tab-saved .nav-tab-icon');
+  if (tabIcon) tabIcon.textContent = ids.size > 0 ? '♥' : '♡';
+}
+
+function toggleSave(btn) {
+  const id = currentDetailId;
+  if (!id) return;
+  const saving = !btn.classList.contains('saved');
+  btn.classList.toggle('saved', saving);
+  btn.textContent = saving ? '♥' : '♡';
+  persistSave(id, saving);
+  /* 同步卡片上的愛心 */
+  const cardHeart = document.querySelector(`.ev-heart[data-id="${id}"]`);
+  if (cardHeart) {
+    cardHeart.textContent = saving ? '♥' : '♡';
+    cardHeart.classList.toggle('saved', saving);
+  }
+  /* 若收藏頁開著，即時刷新 */
+  if (document.getElementById('view-saved').classList.contains('active')) {
+    renderSavedView();
+  }
+}
+
+/* 渲染收藏頁 */
+function renderSavedView() {
+  const container = document.getElementById('saved-list');
+  const savedIds  = getSavedIds();
+  const allEvs    = _mergeStaticPOI(_allEventsCache || [...FALLBACK_EVENTS]);
+  const saved     = allEvs.filter(e => savedIds.has(e.id));
+  /* 更新 tab icon */
+  const tabIcon = document.querySelector('#tab-saved .nav-tab-icon');
+  if (tabIcon) tabIcon.textContent = savedIds.size > 0 ? '♥' : '♡';
+  if (saved.length === 0) {
+    container.innerHTML = `
+      <div class="saved-empty">
+        <div style="font-size:52px">♡</div>
+        <div class="saved-empty-title">還沒有收藏</div>
+        <div class="saved-empty-sub">在活動頁點右下角的 ♡<br>就會出現在這裡囉！</div>
+        <button class="empty-suggest-btn" onclick="switchTab('radar')">去找找看 →</button>
+      </div>`;
+    return;
+  }
+  container.innerHTML = `<div style="padding:14px 4px 6px;font-size:13px;color:var(--sub)">共收藏 ${saved.length} 個地方</div>`;
+  saved.forEach(ev => {
+    const isHighCp = cpScore(ev) >= 4;
+    const row = document.createElement('div');
+    row.className = 'ev-row';
+    row.style.position = 'relative';
+    row.onclick = () => openDetail(ev.id);
+    row.innerHTML = `
+      <div class="ev-bar" style="background:${ev.bar}"></div>
+      <div class="ev-info">
+        <div class="ev-city">${ev.city}</div>
+        <div class="ev-name">${ev.name}</div>
+        <div class="ev-meta">${ev.time}</div>
+        <div class="ev-tags">
+          ${ev.tags.map(t=>`<span class="ev-tag" style="background:${t.bg};color:${t.c};font-weight:700">${t.t}</span>`).join('')}
+          ${isHighCp?'<span class="cp-badge">高 CP 值</span>':''}
+        </div>
+      </div>
+      <div class="ev-right"><div class="ev-arrow">›</div></div>
+      <button class="ev-heart saved" data-id="${ev.id}"
+        onclick="event.stopPropagation();removeSavedFromList(this,'${ev.id}',this.closest('.ev-row'))"
+        title="取消收藏">♥</button>`;
+    container.appendChild(row);
+  });
+}
+
+function removeSavedFromList(btn, id, row) {
+  persistSave(id, false);
+  row.style.transition = 'opacity .3s, transform .3s';
+  row.style.opacity = '0'; row.style.transform = 'translateX(30px)';
+  setTimeout(() => { renderSavedView(); }, 320);
+  /* 同步主列表愛心 */
+  const cardHeart = document.querySelector(`.ev-heart[data-id="${id}"]`);
+  if (cardHeart) { cardHeart.textContent = '♡'; cardHeart.classList.remove('saved'); }
+  /* 同步詳情頁 */
+  if (currentDetailId === id) {
+    const saveBtn = document.getElementById('d-save');
+    if (saveBtn) { saveBtn.textContent = '♡'; saveBtn.classList.remove('saved'); }
+  }
+}
+
+/* ════════════════════════════════════════
+   分享功能
+════════════════════════════════════════ */
+async function shareEvent() {
+  const allEvs = _mergeStaticPOI(_allEventsCache || [...FALLBACK_EVENTS]);
+  const ev = allEvs.find(e => e.id === currentDetailId);
+  if (!ev) return;
+  const text = `${ev.name}｜${ev.city} ${ev.time}`;
+  const url  = ev.website || location.href;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: ev.name, text, url });
+    } catch(e) { /* 用戶取消或不支援 */ }
+  } else {
+    /* 桌面瀏覽器：複製到剪貼簿 */
+    try {
+      await navigator.clipboard.writeText(`${text}\n${url}`);
+      const btn = document.querySelector('.cta-share');
+      if (btn) { btn.textContent = '✓'; setTimeout(() => btn.textContent = '🔗', 1800); }
+    } catch(e) { alert(`複製連結：${url}`); }
+  }
+}
+
 /* 渲染活動列表 */
 function renderList(evs) {
   const list  = document.getElementById('ev-list');
@@ -2400,15 +2592,38 @@ function renderList(evs) {
   list.innerHTML = '';
   if (evs.length === 0) {
     list.style.display  = 'none';
+    /* 智慧空結果：判斷是否有城市+篩選組合問題 */
+    let extraHtml = '';
+    if (currentCity !== 'all' && currentFilter !== 'all') {
+      const globalPool = _mergeStaticPOI(_allEventsCache || [...FALLBACK_EVENTS])
+        .filter(e => (e.filter || '').includes(currentFilter));
+      if (globalPool.length > 0) {
+        const filterName = TAG_LABELS[currentFilter] || currentFilter;
+        extraHtml = `
+          <div style="font-size:13px;color:var(--sub);text-align:center;margin-top:-4px">
+            ${currentCity} 目前沒有「${filterName}」資訊
+          </div>
+          <button class="empty-suggest-btn" onclick="onCitySelect('all')">
+            看全台灣的${filterName} →
+          </button>`;
+      }
+    } else if (currentFilter !== 'all') {
+      extraHtml = `<button class="empty-suggest-btn" onclick="onFilterSelect('all')">顯示所有類型</button>`;
+    }
+    empty.innerHTML = empty.innerHTML.replace(/<!-- suggest -->[\s\S]*?<!-- \/suggest -->/,'');
+    empty.insertAdjacentHTML('beforeend', `<!-- suggest -->${extraHtml}<!-- /suggest -->`);
     empty.style.display = 'flex';
     return;
   }
   list.style.display  = 'flex';
   empty.style.display = 'none';
+  const savedIds = getSavedIds();
   evs.forEach((ev, i) => {
     const isHighCp = cpScore(ev) >= 4;
+    const heartSaved = savedIds.has(ev.id);
     const row = document.createElement('div');
     row.className = 'ev-row';
+    row.style.cssText += ';position:relative';
     row.style.animationDelay = (i * 0.06) + 's';
     row.onclick = () => openDetail(ev.id);
     row.innerHTML = `
@@ -2425,10 +2640,25 @@ function renderList(evs) {
       <div class="ev-right">
         <div class="ev-arrow">›</div>
       </div>
-      <button onclick="event.stopPropagation();addToBudget('${ev.id}')" style="flex-shrink:0;align-self:center;background:#FFF1A8;border:1.5px solid #E8D060;border-radius:14px;padding:5px 9px;font-size:11px;font-weight:700;color:#633806;cursor:pointer;font-family:inherit;white-space:nowrap">+ 加入</button>`;
+      <button onclick="event.stopPropagation();addToBudget('${ev.id}')" style="flex-shrink:0;align-self:center;background:#FFF1A8;border:1.5px solid #E8D060;border-radius:14px;padding:5px 9px;font-size:11px;font-weight:700;color:#633806;cursor:pointer;font-family:inherit;white-space:nowrap">+ 加入</button>
+      <button class="ev-heart${heartSaved?' saved':''}" data-id="${ev.id}"
+        onclick="event.stopPropagation();toggleHeartOnCard(this,'${ev.id}')"
+        title="${heartSaved?'取消收藏':'收藏'}">${heartSaved?'♥':'♡'}</button>`;
     list.appendChild(row);
   });
   attachLazyObservers();
+}
+
+function toggleHeartOnCard(btn, id) {
+  const saving = !btn.classList.contains('saved');
+  btn.classList.toggle('saved', saving);
+  btn.textContent = saving ? '♥' : '♡';
+  persistSave(id, saving);
+  /* 同步詳情頁 save 按鈕 */
+  if (currentDetailId === id) {
+    const saveBtn = document.getElementById('d-save');
+    if (saveBtn) { saveBtn.textContent = saving?'♥':'♡'; saveBtn.classList.toggle('saved',saving); }
+  }
 }
 
 
@@ -2888,7 +3118,11 @@ function openDetail(id) {
     </div>`).join('') || '<div style="font-size:12px;color:#4A2C1A;padding:4px 0">暫無周邊美食資料</div>';
 
   const saveBtn = document.getElementById('d-save');
-  if (saveBtn) { saveBtn.textContent = '♡'; saveBtn.classList.remove('saved'); }
+  if (saveBtn) {
+    const alreadySaved = isSaved(id);
+    saveBtn.textContent = alreadySaved ? '♥' : '♡';
+    saveBtn.classList.toggle('saved', alreadySaved);
+  }
 
   document.getElementById('detail-overlay').classList.add('open');
 }
@@ -2896,11 +3130,6 @@ function openDetail(id) {
 function closeDetail(event) {
   if (event && event.target !== document.getElementById('detail-overlay')) return;
   document.getElementById('detail-overlay').classList.remove('open');
-}
-
-function toggleSave(btn) {
-  const saved = btn.classList.toggle('saved');
-  btn.textContent = saved ? '♥' : '♡';
 }
 
 
