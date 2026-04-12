@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-04-11T19:59:41.444Z",
-  "count": 282,
+  "updated_at": "2026-04-12T20:03:49.058Z",
+  "count": 281,
   "source": "TDX 交通部觀光 API",
   "events": [
     {
@@ -21164,82 +21164,6 @@
       "addr": "高雄市831大寮區捷西路298號 ( 大寮捷運站1號出口 )",
       "start_date": "2026-04-01",
       "end_date": "2026-06-30",
-      "description": "無"
-    },
-    {
-      "id": "C2_397000000A_007473",
-      "city": "高雄",
-      "filter": "art free",
-      "lat": 22.61779022216797,
-      "lng": 120.28875732421875,
-      "bar": "#97C459",
-      "pin": "#97C459",
-      "pin_emoji": "★",
-      "tags": [
-        {
-          "t": "免費",
-          "bg": "#B2EBF2",
-          "c": "#085041"
-        }
-      ],
-      "name": "2026 Apink Asia Tour 《The Origin：APINK》 in KAOHSIUNG",
-      "time": "2026-04-11",
-      "dist": "—",
-      "is_free": true,
-      "is_indoor": false,
-      "cost_est": "NT$0（免費入場）",
-      "hero_color": "#97C459",
-      "dtag": "高雄 · art",
-      "dtitle": "2026 Apink Asia Tour 《The Origin：APINK》 in KAOHSIUNG",
-      "grid": [
-        {
-          "icon": "🕗",
-          "lbl": "時間",
-          "val": "2026-04-11"
-        },
-        {
-          "icon": "📍",
-          "lbl": "地點",
-          "val": "高雄市803鹽埕區高雄流行音樂中心"
-        },
-        {
-          "icon": "🎟",
-          "lbl": "票價",
-          "val": "免費入場"
-        },
-        {
-          "icon": "🔗",
-          "lbl": "資訊",
-          "val": "暫無官網"
-        }
-      ],
-      "pain": [
-        {
-          "icon": "📋",
-          "bg": "#E6F1FB",
-          "txt": "<strong>主辦單位</strong>：高雄市政府"
-        },
-        {
-          "icon": "📍",
-          "bg": "#FAEEDA",
-          "txt": "<strong>地址</strong>：高雄市803鹽埕區高雄流行音樂中心"
-        },
-        {
-          "icon": "🎟",
-          "bg": "#E1F5EE",
-          "txt": "<strong>費用</strong>：完全免費"
-        },
-        {
-          "icon": "🌐",
-          "bg": "#FBEAF0",
-          "txt": "<strong>官網</strong>：暫無"
-        }
-      ],
-      "food": [],
-      "website": "",
-      "addr": "高雄市803鹽埕區高雄流行音樂中心",
-      "start_date": "2026-04-11",
-      "end_date": "2026-04-11",
       "description": "無"
     },
     {
