@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-04-24T19:43:44.358Z",
-  "count": 301,
+  "updated_at": "2026-04-25T19:37:44.818Z",
+  "count": 300,
   "source": "TDX 交通部觀光 API",
   "events": [
     {
@@ -21781,82 +21781,6 @@
       "addr": "高雄市803鹽埕區各展覽空間與公共場域",
       "start_date": "2026-03-07",
       "end_date": "2026-04-26",
-      "description": "無"
-    },
-    {
-      "id": "C2_397000000A_007451",
-      "city": "高雄",
-      "filter": "art free",
-      "lat": 22.625259399414062,
-      "lng": 120.31793975830078,
-      "bar": "#97C459",
-      "pin": "#97C459",
-      "pin_emoji": "★",
-      "tags": [
-        {
-          "t": "免費",
-          "bg": "#B2EBF2",
-          "c": "#085041"
-        }
-      ],
-      "name": "KSAF《日本江戶傳統藝能之夜》",
-      "time": "2026-04-24",
-      "dist": "—",
-      "is_free": true,
-      "is_indoor": false,
-      "cost_est": "NT$0（免費入場）",
-      "hero_color": "#97C459",
-      "dtag": "高雄 · art",
-      "dtitle": "KSAF《日本江戶傳統藝能之夜》",
-      "grid": [
-        {
-          "icon": "🕗",
-          "lbl": "時間",
-          "val": "2026-04-24"
-        },
-        {
-          "icon": "📍",
-          "lbl": "地點",
-          "val": "高雄市802苓雅區高雄文化中心至德堂"
-        },
-        {
-          "icon": "🎟",
-          "lbl": "票價",
-          "val": "免費入場"
-        },
-        {
-          "icon": "🔗",
-          "lbl": "資訊",
-          "val": "暫無官網"
-        }
-      ],
-      "pain": [
-        {
-          "icon": "📋",
-          "bg": "#E6F1FB",
-          "txt": "<strong>主辦單位</strong>：高雄市政府文化局、財團法人高雄市愛樂文化藝術基金會"
-        },
-        {
-          "icon": "📍",
-          "bg": "#FAEEDA",
-          "txt": "<strong>地址</strong>：高雄市802苓雅區高雄文化中心至德堂"
-        },
-        {
-          "icon": "🎟",
-          "bg": "#E1F5EE",
-          "txt": "<strong>費用</strong>：完全免費"
-        },
-        {
-          "icon": "🌐",
-          "bg": "#FBEAF0",
-          "txt": "<strong>官網</strong>：暫無"
-        }
-      ],
-      "food": [],
-      "website": "",
-      "addr": "高雄市802苓雅區高雄文化中心至德堂",
-      "start_date": "2026-04-24",
-      "end_date": "2026-04-24",
       "description": "無"
     },
     {
