@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-06-05T20:44:56.529Z",
-  "count": 283,
+  "updated_at": "2026-06-06T20:03:51.520Z",
+  "count": 281,
   "source": "TDX 交通部觀光 API",
   "events": [
     {
@@ -6868,87 +6868,6 @@
       "description": "無"
     },
     {
-      "id": "C2_387000000A_010214",
-      "city": "台中",
-      "filter": "music free",
-      "lat": 24.122360229492188,
-      "lng": 120.5683822631836,
-      "bar": "#FFF1A8",
-      "pin": "#FFF1A8",
-      "pin_emoji": "★",
-      "tags": [
-        {
-          "t": "免費",
-          "bg": "#B2EBF2",
-          "c": "#085041"
-        },
-        {
-          "t": "音樂",
-          "bg": "#B1D8F3",
-          "c": "#0C447C"
-        }
-      ],
-      "name": "2026臺中市逍遙音樂町－金曲大肚・追分開唱",
-      "time": "2026-06-05",
-      "dist": "—",
-      "is_free": true,
-      "is_indoor": false,
-      "cost_est": "NT$0（免費入場）",
-      "hero_color": "#8FF1A8",
-      "dtag": "台中 · music",
-      "dtitle": "2026臺中市逍遙音樂町－金曲大肚・追分開唱",
-      "grid": [
-        {
-          "icon": "🕗",
-          "lbl": "時間",
-          "val": "2026-06-05"
-        },
-        {
-          "icon": "📍",
-          "lbl": "地點",
-          "val": "臺中市432大肚區大肚區沙田路一段364號"
-        },
-        {
-          "icon": "🎟",
-          "lbl": "票價",
-          "val": "免費入場"
-        },
-        {
-          "icon": "🔗",
-          "lbl": "資訊",
-          "val": "暫無官網"
-        }
-      ],
-      "pain": [
-        {
-          "icon": "📋",
-          "bg": "#E6F1FB",
-          "txt": "<strong>主辦單位</strong>：臺中市政府"
-        },
-        {
-          "icon": "📍",
-          "bg": "#FAEEDA",
-          "txt": "<strong>地址</strong>：臺中市432大肚區大肚區沙田路一段364號"
-        },
-        {
-          "icon": "🎟",
-          "bg": "#E1F5EE",
-          "txt": "<strong>費用</strong>：完全免費"
-        },
-        {
-          "icon": "🌐",
-          "bg": "#FBEAF0",
-          "txt": "<strong>官網</strong>：暫無"
-        }
-      ],
-      "food": [],
-      "website": "",
-      "addr": "臺中市432大肚區大肚區沙田路一段364號",
-      "start_date": "2026-06-05",
-      "end_date": "2026-06-05",
-      "description": "無"
-    },
-    {
       "id": "C2_387000000A_010221",
       "city": "台中",
       "filter": "art free",
@@ -7179,82 +7098,6 @@
       "addr": "臺中市435梧棲區臺中市梧棲區草湳里17鄰文昌路850號",
       "start_date": "2026-06-12",
       "end_date": "2026-06-12",
-      "description": "無"
-    },
-    {
-      "id": "C2_387000000A_010241",
-      "city": "台中",
-      "filter": "art free",
-      "lat": 24.177600860595703,
-      "lng": 120.97989654541016,
-      "bar": "#FFF1A8",
-      "pin": "#FFF1A8",
-      "pin_emoji": "★",
-      "tags": [
-        {
-          "t": "免費",
-          "bg": "#B2EBF2",
-          "c": "#085041"
-        }
-      ],
-      "name": "115年和平區泰雅族語歌謠競賽文化活動",
-      "time": "2026-06-05",
-      "dist": "—",
-      "is_free": true,
-      "is_indoor": false,
-      "cost_est": "NT$0（免費入場）",
-      "hero_color": "#8FF1A8",
-      "dtag": "台中 · art",
-      "dtitle": "115年和平區泰雅族語歌謠競賽文化活動",
-      "grid": [
-        {
-          "icon": "🕗",
-          "lbl": "時間",
-          "val": "2026-06-05"
-        },
-        {
-          "icon": "📍",
-          "lbl": "地點",
-          "val": "臺中市424和平區臺中市和平區博愛里東關路一段松鶴三巷5-3號"
-        },
-        {
-          "icon": "🎟",
-          "lbl": "票價",
-          "val": "免費入場"
-        },
-        {
-          "icon": "🔗",
-          "lbl": "資訊",
-          "val": "暫無官網"
-        }
-      ],
-      "pain": [
-        {
-          "icon": "📋",
-          "bg": "#E6F1FB",
-          "txt": "<strong>主辦單位</strong>：臺中市和平區公所"
-        },
-        {
-          "icon": "📍",
-          "bg": "#FAEEDA",
-          "txt": "<strong>地址</strong>：臺中市424和平區臺中市和平區博愛里東關路一段松鶴三巷5-3號"
-        },
-        {
-          "icon": "🎟",
-          "bg": "#E1F5EE",
-          "txt": "<strong>費用</strong>：完全免費"
-        },
-        {
-          "icon": "🌐",
-          "bg": "#FBEAF0",
-          "txt": "<strong>官網</strong>：暫無"
-        }
-      ],
-      "food": [],
-      "website": "",
-      "addr": "臺中市424和平區臺中市和平區博愛里東關路一段松鶴三巷5-3號",
-      "start_date": "2026-06-05",
-      "end_date": "2026-06-05",
       "description": "無"
     },
     {
