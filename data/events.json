@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-06-12T20:58:47.902Z",
-  "count": 292,
+  "updated_at": "2026-06-13T20:10:24.092Z",
+  "count": 290,
   "source": "TDX 交通部觀光 API",
   "events": [
     {
@@ -7491,82 +7491,6 @@
       "description": "無"
     },
     {
-      "id": "C2_387000000A_010205",
-      "city": "台中",
-      "filter": "art free",
-      "lat": 24.21494483947754,
-      "lng": 120.66278076171875,
-      "bar": "#FFF1A8",
-      "pin": "#FFF1A8",
-      "pin_emoji": "★",
-      "tags": [
-        {
-          "t": "免費",
-          "bg": "#B2EBF2",
-          "c": "#085041"
-        }
-      ],
-      "name": "台灣好行套票登錄抽好禮",
-      "time": "2026-05-10 – 2026-06-12",
-      "dist": "—",
-      "is_free": true,
-      "is_indoor": false,
-      "cost_est": "NT$0（免費入場）",
-      "hero_color": "#8FF1A8",
-      "dtag": "台中 · art",
-      "dtitle": "台灣好行套票登錄抽好禮",
-      "grid": [
-        {
-          "icon": "🕗",
-          "lbl": "時間",
-          "val": "2026-05-10 – 2026-06-12"
-        },
-        {
-          "icon": "📍",
-          "lbl": "地點",
-          "val": "臺中市400中區"
-        },
-        {
-          "icon": "🎟",
-          "lbl": "票價",
-          "val": "免費入場"
-        },
-        {
-          "icon": "🔗",
-          "lbl": "資訊",
-          "val": "暫無官網"
-        }
-      ],
-      "pain": [
-        {
-          "icon": "📋",
-          "bg": "#E6F1FB",
-          "txt": "<strong>主辦單位</strong>：臺中市政府"
-        },
-        {
-          "icon": "📍",
-          "bg": "#FAEEDA",
-          "txt": "<strong>地址</strong>：臺中市400中區"
-        },
-        {
-          "icon": "🎟",
-          "bg": "#E1F5EE",
-          "txt": "<strong>費用</strong>：完全免費"
-        },
-        {
-          "icon": "🌐",
-          "bg": "#FBEAF0",
-          "txt": "<strong>官網</strong>：暫無"
-        }
-      ],
-      "food": [],
-      "website": "",
-      "addr": "臺中市400中區",
-      "start_date": "2026-05-10",
-      "end_date": "2026-06-12",
-      "description": "無"
-    },
-    {
       "id": "C2_387000000A_010238",
       "city": "台中",
       "filter": "art free",
@@ -7640,87 +7564,6 @@
       "addr": "臺中市400中區",
       "start_date": "2026-09-12",
       "end_date": "2026-09-13",
-      "description": "無"
-    },
-    {
-      "id": "C2_387000000A_010240",
-      "city": "台中",
-      "filter": "music free",
-      "lat": 24.24806022644043,
-      "lng": 120.53089904785156,
-      "bar": "#FFF1A8",
-      "pin": "#FFF1A8",
-      "pin_emoji": "★",
-      "tags": [
-        {
-          "t": "免費",
-          "bg": "#B2EBF2",
-          "c": "#085041"
-        },
-        {
-          "t": "音樂",
-          "bg": "#B1D8F3",
-          "c": "#0C447C"
-        }
-      ],
-      "name": "2026梧棲逍遙音樂町－夏夜星河．愛在梧棲音樂會",
-      "time": "2026-06-12",
-      "dist": "—",
-      "is_free": true,
-      "is_indoor": false,
-      "cost_est": "NT$0（免費入場）",
-      "hero_color": "#8FF1A8",
-      "dtag": "台中 · music",
-      "dtitle": "2026梧棲逍遙音樂町－夏夜星河．愛在梧棲音樂會",
-      "grid": [
-        {
-          "icon": "🕗",
-          "lbl": "時間",
-          "val": "2026-06-12"
-        },
-        {
-          "icon": "📍",
-          "lbl": "地點",
-          "val": "臺中市435梧棲區臺中市梧棲區草湳里17鄰文昌路850號"
-        },
-        {
-          "icon": "🎟",
-          "lbl": "票價",
-          "val": "免費入場"
-        },
-        {
-          "icon": "🔗",
-          "lbl": "資訊",
-          "val": "暫無官網"
-        }
-      ],
-      "pain": [
-        {
-          "icon": "📋",
-          "bg": "#E6F1FB",
-          "txt": "<strong>主辦單位</strong>：臺中市梧棲區公所"
-        },
-        {
-          "icon": "📍",
-          "bg": "#FAEEDA",
-          "txt": "<strong>地址</strong>：臺中市435梧棲區臺中市梧棲區草湳里17鄰文昌路850號"
-        },
-        {
-          "icon": "🎟",
-          "bg": "#E1F5EE",
-          "txt": "<strong>費用</strong>：完全免費"
-        },
-        {
-          "icon": "🌐",
-          "bg": "#FBEAF0",
-          "txt": "<strong>官網</strong>：暫無"
-        }
-      ],
-      "food": [],
-      "website": "",
-      "addr": "臺中市435梧棲區臺中市梧棲區草湳里17鄰文昌路850號",
-      "start_date": "2026-06-12",
-      "end_date": "2026-06-12",
       "description": "無"
     },
     {
