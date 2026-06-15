@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-06-14T20:14:32.298Z",
-  "count": 285,
+  "updated_at": "2026-06-15T21:38:03.174Z",
+  "count": 281,
   "source": "TDX 交通部觀光 API",
   "events": [
     {
@@ -1240,82 +1240,6 @@
       "description": "無"
     },
     {
-      "id": "C2_382000000A_003736",
-      "city": "新北",
-      "filter": "art free",
-      "lat": 24.952619552612305,
-      "lng": 121.35767364501953,
-      "bar": "#FFB7B2",
-      "pin": "#FFB7B2",
-      "pin_emoji": "★",
-      "tags": [
-        {
-          "t": "免費",
-          "bg": "#B2EBF2",
-          "c": "#085041"
-        }
-      ],
-      "name": "棉線與石頭",
-      "time": "2026-02-07 – 2026-06-14",
-      "dist": "—",
-      "is_free": true,
-      "is_indoor": false,
-      "cost_est": "NT$0（免費入場）",
-      "hero_color": "#8FB7B2",
-      "dtag": "新北 · art",
-      "dtitle": "棉線與石頭",
-      "grid": [
-        {
-          "icon": "🕗",
-          "lbl": "時間",
-          "val": "2026-02-07 – 2026-06-14"
-        },
-        {
-          "icon": "📍",
-          "lbl": "地點",
-          "val": "新北市239鶯歌區新北市美術館"
-        },
-        {
-          "icon": "🎟",
-          "lbl": "票價",
-          "val": "免費入場"
-        },
-        {
-          "icon": "🔗",
-          "lbl": "資訊",
-          "val": "暫無官網"
-        }
-      ],
-      "pain": [
-        {
-          "icon": "📋",
-          "bg": "#E6F1FB",
-          "txt": "<strong>主辦單位</strong>：新北市美術館"
-        },
-        {
-          "icon": "📍",
-          "bg": "#FAEEDA",
-          "txt": "<strong>地址</strong>：新北市239鶯歌區新北市美術館"
-        },
-        {
-          "icon": "🎟",
-          "bg": "#E1F5EE",
-          "txt": "<strong>費用</strong>：完全免費"
-        },
-        {
-          "icon": "🌐",
-          "bg": "#FBEAF0",
-          "txt": "<strong>官網</strong>：暫無"
-        }
-      ],
-      "food": [],
-      "website": "",
-      "addr": "新北市239鶯歌區新北市美術館",
-      "start_date": "2026-02-07",
-      "end_date": "2026-06-14",
-      "description": "無"
-    },
-    {
       "id": "C2_382000000A_003755",
       "city": "新北",
       "filter": "art free",
@@ -1693,82 +1617,6 @@
       "addr": "新北市239鶯歌區文化路200號(鶯歌陶瓷博物館 三樓特展室)",
       "start_date": "2026-04-17",
       "end_date": "2026-07-12",
-      "description": "無"
-    },
-    {
-      "id": "C2_382000000A_003805",
-      "city": "新北",
-      "filter": "art free",
-      "lat": 24.95598030090332,
-      "lng": 121.5364990234375,
-      "bar": "#FFB7B2",
-      "pin": "#FFB7B2",
-      "pin_emoji": "★",
-      "tags": [
-        {
-          "t": "免費",
-          "bg": "#B2EBF2",
-          "c": "#085041"
-        }
-      ],
-      "name": "2026碧潭水舞季",
-      "time": "2026-05-01 – 2026-06-14",
-      "dist": "—",
-      "is_free": true,
-      "is_indoor": false,
-      "cost_est": "NT$0（免費入場）",
-      "hero_color": "#8FB7B2",
-      "dtag": "新北 · art",
-      "dtitle": "2026碧潭水舞季",
-      "grid": [
-        {
-          "icon": "🕗",
-          "lbl": "時間",
-          "val": "2026-05-01 – 2026-06-14"
-        },
-        {
-          "icon": "📍",
-          "lbl": "地點",
-          "val": "新北市231新店區碧潭風景區"
-        },
-        {
-          "icon": "🎟",
-          "lbl": "票價",
-          "val": "免費入場"
-        },
-        {
-          "icon": "🔗",
-          "lbl": "資訊",
-          "val": "暫無官網"
-        }
-      ],
-      "pain": [
-        {
-          "icon": "📋",
-          "bg": "#E6F1FB",
-          "txt": "<strong>主辦單位</strong>：新北市政府"
-        },
-        {
-          "icon": "📍",
-          "bg": "#FAEEDA",
-          "txt": "<strong>地址</strong>：新北市231新店區碧潭風景區"
-        },
-        {
-          "icon": "🎟",
-          "bg": "#E1F5EE",
-          "txt": "<strong>費用</strong>：完全免費"
-        },
-        {
-          "icon": "🌐",
-          "bg": "#FBEAF0",
-          "txt": "<strong>官網</strong>：暫無"
-        }
-      ],
-      "food": [],
-      "website": "",
-      "addr": "新北市231新店區碧潭風景區",
-      "start_date": "2026-05-01",
-      "end_date": "2026-06-14",
       "description": "無"
     },
     {
@@ -2456,82 +2304,6 @@
       "description": "無"
     },
     {
-      "id": "C2_382000000A_003852",
-      "city": "新北",
-      "filter": "art free",
-      "lat": 25.06361961364746,
-      "lng": 121.5011978149414,
-      "bar": "#FFB7B2",
-      "pin": "#FFB7B2",
-      "pin_emoji": "★",
-      "tags": [
-        {
-          "t": "免費",
-          "bg": "#B2EBF2",
-          "c": "#085041"
-        }
-      ],
-      "name": "2026新北電競爭霸戰",
-      "time": "2026-06-13 – 2026-06-14",
-      "dist": "—",
-      "is_free": true,
-      "is_indoor": false,
-      "cost_est": "NT$0（免費入場）",
-      "hero_color": "#8FB7B2",
-      "dtag": "新北 · art",
-      "dtitle": "2026新北電競爭霸戰",
-      "grid": [
-        {
-          "icon": "🕗",
-          "lbl": "時間",
-          "val": "2026-06-13 – 2026-06-14"
-        },
-        {
-          "icon": "📍",
-          "lbl": "地點",
-          "val": "新北市241三重區重新路一段87號3樓(新北電競基地)"
-        },
-        {
-          "icon": "🎟",
-          "lbl": "票價",
-          "val": "免費入場"
-        },
-        {
-          "icon": "🔗",
-          "lbl": "資訊",
-          "val": "暫無官網"
-        }
-      ],
-      "pain": [
-        {
-          "icon": "📋",
-          "bg": "#E6F1FB",
-          "txt": "<strong>主辦單位</strong>：新北市政府、新北電競基地"
-        },
-        {
-          "icon": "📍",
-          "bg": "#FAEEDA",
-          "txt": "<strong>地址</strong>：新北市241三重區重新路一段87號3樓(新北電競基地)"
-        },
-        {
-          "icon": "🎟",
-          "bg": "#E1F5EE",
-          "txt": "<strong>費用</strong>：完全免費"
-        },
-        {
-          "icon": "🌐",
-          "bg": "#FBEAF0",
-          "txt": "<strong>官網</strong>：暫無"
-        }
-      ],
-      "food": [],
-      "website": "",
-      "addr": "新北市241三重區重新路一段87號3樓(新北電競基地)",
-      "start_date": "2026-06-13",
-      "end_date": "2026-06-14",
-      "description": "無"
-    },
-    {
       "id": "C2_382000000A_003855",
       "city": "新北",
       "filter": "art free",
@@ -2681,82 +2453,6 @@
       "addr": "新北市207萬里區",
       "start_date": "2026-06-06",
       "end_date": "2026-09-26",
-      "description": "無"
-    },
-    {
-      "id": "C2_382000000A_003858",
-      "city": "新北",
-      "filter": "art free",
-      "lat": 24.99618911743164,
-      "lng": 121.42875671386719,
-      "bar": "#FFB7B2",
-      "pin": "#FFB7B2",
-      "pin_emoji": "★",
-      "tags": [
-        {
-          "t": "免費",
-          "bg": "#B2EBF2",
-          "c": "#085041"
-        }
-      ],
-      "name": "2026藝術0距離Ｘ微光製造「到處跳舞在樹林」",
-      "time": "2026-06-02 – 2026-06-14",
-      "dist": "—",
-      "is_free": true,
-      "is_indoor": false,
-      "cost_est": "NT$0（免費入場）",
-      "hero_color": "#8FB7B2",
-      "dtag": "新北 · art",
-      "dtitle": "2026藝術0距離Ｘ微光製造「到處跳舞在樹林」",
-      "grid": [
-        {
-          "icon": "🕗",
-          "lbl": "時間",
-          "val": "2026-06-02 – 2026-06-14"
-        },
-        {
-          "icon": "📍",
-          "lbl": "地點",
-          "val": "新北市238樹林區樹新路40-8號(樹林藝文中心)"
-        },
-        {
-          "icon": "🎟",
-          "lbl": "票價",
-          "val": "免費入場"
-        },
-        {
-          "icon": "🔗",
-          "lbl": "資訊",
-          "val": "暫無官網"
-        }
-      ],
-      "pain": [
-        {
-          "icon": "📋",
-          "bg": "#E6F1FB",
-          "txt": "<strong>主辦單位</strong>：新北市政府"
-        },
-        {
-          "icon": "📍",
-          "bg": "#FAEEDA",
-          "txt": "<strong>地址</strong>：新北市238樹林區樹新路40-8號(樹林藝文中心)"
-        },
-        {
-          "icon": "🎟",
-          "bg": "#E1F5EE",
-          "txt": "<strong>費用</strong>：完全免費"
-        },
-        {
-          "icon": "🌐",
-          "bg": "#FBEAF0",
-          "txt": "<strong>官網</strong>：暫無"
-        }
-      ],
-      "food": [],
-      "website": "",
-      "addr": "新北市238樹林區樹新路40-8號(樹林藝文中心)",
-      "start_date": "2026-06-02",
-      "end_date": "2026-06-14",
       "description": "無"
     },
     {
@@ -3373,158 +3069,6 @@
       "description": "無"
     },
     {
-      "id": "C2_382000000A_003875",
-      "city": "新北",
-      "filter": "art free",
-      "lat": 25.026050567626953,
-      "lng": 121.47225952148438,
-      "bar": "#FFB7B2",
-      "pin": "#FFB7B2",
-      "pin_emoji": "★",
-      "tags": [
-        {
-          "t": "免費",
-          "bg": "#B2EBF2",
-          "c": "#085041"
-        }
-      ],
-      "name": "「新星藝綻」2026新北市學校合作計畫｜華梵大學美術與文創學系《覆後．覺途》",
-      "time": "2026-05-29 – 2026-06-14",
-      "dist": "—",
-      "is_free": true,
-      "is_indoor": false,
-      "cost_est": "NT$0（免費入場）",
-      "hero_color": "#8FB7B2",
-      "dtag": "新北 · art",
-      "dtitle": "「新星藝綻」2026新北市學校合作計畫｜華梵大學美術與文創學系《覆後．覺途》",
-      "grid": [
-        {
-          "icon": "🕗",
-          "lbl": "時間",
-          "val": "2026-05-29 – 2026-06-14"
-        },
-        {
-          "icon": "📍",
-          "lbl": "地點",
-          "val": "新北市220板橋區新北市藝文中心第一、第二展覽室"
-        },
-        {
-          "icon": "🎟",
-          "lbl": "票價",
-          "val": "免費入場"
-        },
-        {
-          "icon": "🔗",
-          "lbl": "資訊",
-          "val": "暫無官網"
-        }
-      ],
-      "pain": [
-        {
-          "icon": "📋",
-          "bg": "#E6F1FB",
-          "txt": "<strong>主辦單位</strong>：新北市政府"
-        },
-        {
-          "icon": "📍",
-          "bg": "#FAEEDA",
-          "txt": "<strong>地址</strong>：新北市220板橋區新北市藝文中心第一、第二展覽室"
-        },
-        {
-          "icon": "🎟",
-          "bg": "#E1F5EE",
-          "txt": "<strong>費用</strong>：完全免費"
-        },
-        {
-          "icon": "🌐",
-          "bg": "#FBEAF0",
-          "txt": "<strong>官網</strong>：暫無"
-        }
-      ],
-      "food": [],
-      "website": "",
-      "addr": "新北市220板橋區新北市藝文中心第一、第二展覽室",
-      "start_date": "2026-05-29",
-      "end_date": "2026-06-14",
-      "description": "無"
-    },
-    {
-      "id": "C2_382000000A_003876",
-      "city": "新北",
-      "filter": "art free",
-      "lat": 25.026050567626953,
-      "lng": 121.47225952148438,
-      "bar": "#FFB7B2",
-      "pin": "#FFB7B2",
-      "pin_emoji": "★",
-      "tags": [
-        {
-          "t": "免費",
-          "bg": "#B2EBF2",
-          "c": "#085041"
-        }
-      ],
-      "name": "「新星藝綻」2026新北市學校合作計畫｜國立臺灣藝術大學工藝設計學系「有一天.-？@*=…！'<」",
-      "time": "2026-05-29 – 2026-06-14",
-      "dist": "—",
-      "is_free": true,
-      "is_indoor": false,
-      "cost_est": "NT$0（免費入場）",
-      "hero_color": "#8FB7B2",
-      "dtag": "新北 · art",
-      "dtitle": "「新星藝綻」2026新北市學校合作計畫｜國立臺灣藝術大學工藝設計學系「有一天.-？@*=…！'<」",
-      "grid": [
-        {
-          "icon": "🕗",
-          "lbl": "時間",
-          "val": "2026-05-29 – 2026-06-14"
-        },
-        {
-          "icon": "📍",
-          "lbl": "地點",
-          "val": "新北市220板橋區新北市藝文中心 第三展覽室"
-        },
-        {
-          "icon": "🎟",
-          "lbl": "票價",
-          "val": "免費入場"
-        },
-        {
-          "icon": "🔗",
-          "lbl": "資訊",
-          "val": "暫無官網"
-        }
-      ],
-      "pain": [
-        {
-          "icon": "📋",
-          "bg": "#E6F1FB",
-          "txt": "<strong>主辦單位</strong>：新北市政府"
-        },
-        {
-          "icon": "📍",
-          "bg": "#FAEEDA",
-          "txt": "<strong>地址</strong>：新北市220板橋區新北市藝文中心 第三展覽室"
-        },
-        {
-          "icon": "🎟",
-          "bg": "#E1F5EE",
-          "txt": "<strong>費用</strong>：完全免費"
-        },
-        {
-          "icon": "🌐",
-          "bg": "#FBEAF0",
-          "txt": "<strong>官網</strong>：暫無"
-        }
-      ],
-      "food": [],
-      "website": "",
-      "addr": "新北市220板橋區新北市藝文中心 第三展覽室",
-      "start_date": "2026-05-29",
-      "end_date": "2026-06-14",
-      "description": "無"
-    },
-    {
       "id": "C2_382000000A_003882",
       "city": "新北",
       "filter": "music free",
@@ -3907,6 +3451,82 @@
       "addr": "新北市239鶯歌區新北市立鶯歌陶瓷博物館 3樓特展室",
       "start_date": "2026-07-31",
       "end_date": "2026-12-27",
+      "description": "無"
+    },
+    {
+      "id": "C2_382000000A_003892",
+      "city": "新北",
+      "filter": "art free",
+      "lat": 24.864089965820312,
+      "lng": 121.551513671875,
+      "bar": "#FFB7B2",
+      "pin": "#FFB7B2",
+      "pin_emoji": "★",
+      "tags": [
+        {
+          "t": "免費",
+          "bg": "#B2EBF2",
+          "c": "#085041"
+        }
+      ],
+      "name": "《她kneril-畚斗仔車旁的身影》特展",
+      "time": "2026-06-12 – 2026-09-13",
+      "dist": "—",
+      "is_free": true,
+      "is_indoor": false,
+      "cost_est": "NT$0（免費入場）",
+      "hero_color": "#8FB7B2",
+      "dtag": "新北 · art",
+      "dtitle": "《她kneril-畚斗仔車旁的身影》特展",
+      "grid": [
+        {
+          "icon": "🕗",
+          "lbl": "時間",
+          "val": "2026-06-12 – 2026-09-13"
+        },
+        {
+          "icon": "📍",
+          "lbl": "地點",
+          "val": "新北市233烏來區烏來泰雅民族博物館1樓特展區"
+        },
+        {
+          "icon": "🎟",
+          "lbl": "票價",
+          "val": "免費入場"
+        },
+        {
+          "icon": "🔗",
+          "lbl": "資訊",
+          "val": "暫無官網"
+        }
+      ],
+      "pain": [
+        {
+          "icon": "📋",
+          "bg": "#E6F1FB",
+          "txt": "<strong>主辦單位</strong>：新北市政府"
+        },
+        {
+          "icon": "📍",
+          "bg": "#FAEEDA",
+          "txt": "<strong>地址</strong>：新北市233烏來區烏來泰雅民族博物館1樓特展區"
+        },
+        {
+          "icon": "🎟",
+          "bg": "#E1F5EE",
+          "txt": "<strong>費用</strong>：完全免費"
+        },
+        {
+          "icon": "🌐",
+          "bg": "#FBEAF0",
+          "txt": "<strong>官網</strong>：暫無"
+        }
+      ],
+      "food": [],
+      "website": "",
+      "addr": "新北市233烏來區烏來泰雅民族博物館1樓特展區",
+      "start_date": "2026-06-12",
+      "end_date": "2026-09-13",
       "description": "無"
     },
     {
@@ -7027,82 +6647,6 @@
       "addr": "臺中市406北屯區大坑風景區",
       "start_date": "2026-03-15",
       "end_date": "2026-09-15",
-      "description": "無"
-    },
-    {
-      "id": "C2_387000000A_010156",
-      "city": "台中",
-      "filter": "art free",
-      "lat": 24.175880432128906,
-      "lng": 120.69082641601562,
-      "bar": "#FFF1A8",
-      "pin": "#FFF1A8",
-      "pin_emoji": "★",
-      "tags": [
-        {
-          "t": "免費",
-          "bg": "#B2EBF2",
-          "c": "#085041"
-        }
-      ],
-      "name": "2026大坑蝶螢嘉年華",
-      "time": "2026-04-11 – 2026-06-14",
-      "dist": "—",
-      "is_free": true,
-      "is_indoor": false,
-      "cost_est": "NT$0（免費入場）",
-      "hero_color": "#8FF1A8",
-      "dtag": "台中 · art",
-      "dtitle": "2026大坑蝶螢嘉年華",
-      "grid": [
-        {
-          "icon": "🕗",
-          "lbl": "時間",
-          "val": "2026-04-11 – 2026-06-14"
-        },
-        {
-          "icon": "📍",
-          "lbl": "地點",
-          "val": "臺中市406北屯區大政段357地號"
-        },
-        {
-          "icon": "🎟",
-          "lbl": "票價",
-          "val": "免費入場"
-        },
-        {
-          "icon": "🔗",
-          "lbl": "資訊",
-          "val": "暫無官網"
-        }
-      ],
-      "pain": [
-        {
-          "icon": "📋",
-          "bg": "#E6F1FB",
-          "txt": "<strong>主辦單位</strong>：臺中市政府"
-        },
-        {
-          "icon": "📍",
-          "bg": "#FAEEDA",
-          "txt": "<strong>地址</strong>：臺中市406北屯區大政段357地號"
-        },
-        {
-          "icon": "🎟",
-          "bg": "#E1F5EE",
-          "txt": "<strong>費用</strong>：完全免費"
-        },
-        {
-          "icon": "🌐",
-          "bg": "#FBEAF0",
-          "txt": "<strong>官網</strong>：暫無"
-        }
-      ],
-      "food": [],
-      "website": "",
-      "addr": "臺中市406北屯區大政段357地號",
-      "start_date": "2026-04-11",
-      "end_date": "2026-06-14",
       "description": "無"
     },
     {
@@ -22181,6 +21725,158 @@
       "addr": "高雄市801前金區愛河水域",
       "start_date": "2026-06-19",
       "end_date": "2026-06-21",
+      "description": "無"
+    },
+    {
+      "id": "C2_397000000A_007722",
+      "city": "高雄",
+      "filter": "art free",
+      "lat": 22.483280181884766,
+      "lng": 120.39974975585938,
+      "bar": "#97C459",
+      "pin": "#97C459",
+      "pin_emoji": "★",
+      "tags": [
+        {
+          "t": "免費",
+          "bg": "#B2EBF2",
+          "c": "#085041"
+        }
+      ],
+      "name": "2026高雄端午龍舟嘉年華-林園傳統龍舟賽",
+      "time": "2026-06-10 – 2026-06-20",
+      "dist": "—",
+      "is_free": true,
+      "is_indoor": false,
+      "cost_est": "NT$0（免費入場）",
+      "hero_color": "#97C459",
+      "dtag": "高雄 · art",
+      "dtitle": "2026高雄端午龍舟嘉年華-林園傳統龍舟賽",
+      "grid": [
+        {
+          "icon": "🕗",
+          "lbl": "時間",
+          "val": "2026-06-10 – 2026-06-20"
+        },
+        {
+          "icon": "📍",
+          "lbl": "地點",
+          "val": "高雄市832林園區中芸漁港"
+        },
+        {
+          "icon": "🎟",
+          "lbl": "票價",
+          "val": "免費入場"
+        },
+        {
+          "icon": "🔗",
+          "lbl": "資訊",
+          "val": "暫無官網"
+        }
+      ],
+      "pain": [
+        {
+          "icon": "📋",
+          "bg": "#E6F1FB",
+          "txt": "<strong>主辦單位</strong>：高雄市林園區公所"
+        },
+        {
+          "icon": "📍",
+          "bg": "#FAEEDA",
+          "txt": "<strong>地址</strong>：高雄市832林園區中芸漁港"
+        },
+        {
+          "icon": "🎟",
+          "bg": "#E1F5EE",
+          "txt": "<strong>費用</strong>：完全免費"
+        },
+        {
+          "icon": "🌐",
+          "bg": "#FBEAF0",
+          "txt": "<strong>官網</strong>：暫無"
+        }
+      ],
+      "food": [],
+      "website": "",
+      "addr": "高雄市832林園區中芸漁港",
+      "start_date": "2026-06-10",
+      "end_date": "2026-06-20",
+      "description": "無"
+    },
+    {
+      "id": "C2_397000000A_007723",
+      "city": "高雄",
+      "filter": "art free",
+      "lat": 22.659210205078125,
+      "lng": 120.29924774169922,
+      "bar": "#97C459",
+      "pin": "#97C459",
+      "pin_emoji": "★",
+      "tags": [
+        {
+          "t": "免費",
+          "bg": "#B2EBF2",
+          "c": "#085041"
+        }
+      ],
+      "name": "2026高雄夏祭新鮮市｜金煌芒果季",
+      "time": "2026-06-27 – 2026-06-28",
+      "dist": "—",
+      "is_free": true,
+      "is_indoor": false,
+      "cost_est": "NT$0（免費入場）",
+      "hero_color": "#97C459",
+      "dtag": "高雄 · art",
+      "dtitle": "2026高雄夏祭新鮮市｜金煌芒果季",
+      "grid": [
+        {
+          "icon": "🕗",
+          "lbl": "時間",
+          "val": "2026-06-27 – 2026-06-28"
+        },
+        {
+          "icon": "📍",
+          "lbl": "地點",
+          "val": "高雄市804鼓山區凹子底森林公園（捷運凹子底站 4 號出口）"
+        },
+        {
+          "icon": "🎟",
+          "lbl": "票價",
+          "val": "免費入場"
+        },
+        {
+          "icon": "🔗",
+          "lbl": "資訊",
+          "val": "暫無官網"
+        }
+      ],
+      "pain": [
+        {
+          "icon": "📋",
+          "bg": "#E6F1FB",
+          "txt": "<strong>主辦單位</strong>：六龜區農會"
+        },
+        {
+          "icon": "📍",
+          "bg": "#FAEEDA",
+          "txt": "<strong>地址</strong>：高雄市804鼓山區凹子底森林公園（捷運凹子底站 4 號出口）"
+        },
+        {
+          "icon": "🎟",
+          "bg": "#E1F5EE",
+          "txt": "<strong>費用</strong>：完全免費"
+        },
+        {
+          "icon": "🌐",
+          "bg": "#FBEAF0",
+          "txt": "<strong>官網</strong>：暫無"
+        }
+      ],
+      "food": [],
+      "website": "",
+      "addr": "高雄市804鼓山區凹子底森林公園（捷運凹子底站 4 號出口）",
+      "start_date": "2026-06-27",
+      "end_date": "2026-06-28",
       "description": "無"
     }
   ]
